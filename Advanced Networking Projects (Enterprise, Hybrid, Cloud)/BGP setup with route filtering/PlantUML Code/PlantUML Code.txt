@@ -1,1 +1,98 @@
-dsv 
+@startuml
+!define RECTANGLE class
+
+skinparam rectangle {
+  BackgroundColor<<Router>> LightSkyBlue
+  BackgroundColor<<RouteMap>> LightYellow
+  BackgroundColor<<PrefixList>> LightGreen
+  BorderColor Black
+  FontSize 12
+  FontName Arial
+}
+
+skinparam note {
+  BackgroundColor LightGray
+  BorderColor Black
+  FontSize 11
+  FontName Arial
+}
+
+/' Entities '/
+RECTANGLE RouterA <<Router>> {
+  + AS 65001
+  + BGP Neighbors:
+    - RouterB (65002)
+    - RouterC (65003)
+}
+
+RECTANGLE RouterB <<Router>> {
+  + AS 65002
+  + BGP Neighbors:
+    - RouterA (65001)
+}
+
+RECTANGLE RouterC <<Router>> {
+  + AS 65003
+  + BGP Neighbors:
+    - RouterA (65001)
+}
+
+/' Route filtering components '/
+RECTANGLE PrefixList_In <<PrefixList>> {
+  + permit 10.0.0.0/24
+  + permit 192.168.1.0/24
+  + deny any
+}
+
+RECTANGLE PrefixList_Out <<PrefixList>> {
+  + permit 172.16.0.0/16
+  + deny any
+}
+
+RECTANGLE RouteMap_In <<RouteMap>> {
+  + match ip address prefix-list PrefixList_In
+  + permit 10
+}
+
+RECTANGLE RouteMap_Out <<RouteMap>> {
+  + match ip address prefix-list PrefixList_Out
+  + permit 10
+}
+
+/' Relationships '/
+RouterA --> RouterB : BGP session (65001 <-> 65002)
+RouterA --> RouterC : BGP session (65001 <-> 65003)
+
+RouteMap_In ..> PrefixList_In : uses
+RouteMap_Out ..> PrefixList_Out : uses
+
+RouterA --> RouteMap_In : inbound filter on RouterA BGP from RouterB
+RouterA --> RouteMap_Out : outbound filter on RouterA BGP to RouterB
+
+note right of RouterA
+  BGP Configuration Example:
+  neighbor 192.0.2.2 remote-as 65002
+  neighbor 192.0.2.2 route-map INBOUND in
+  neighbor 192.0.2.2 route-map OUTBOUND out
+end note
+
+note left of RouterB
+  RouterB Advertises:
+  - 10.0.0.0/24
+  - 172.16.0.0/16
+end note
+
+note left of RouterC
+  RouterC Advertises:
+  - 192.168.1.0/24
+  - 10.10.10.0/24 (Filtered)
+end note
+
+/' Route Flow '/
+RouterB --> RouteMap_In : Advertised Routes Inbound
+RouteMap_In --> RouterA : Filtered Routes Accepted
+
+RouterA --> RouteMap_Out : Routes to Advertise Outbound
+RouteMap_Out --> RouterB : Advertised Routes Outbound
+
+@enduml
