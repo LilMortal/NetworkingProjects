@@ -13,7 +13,6 @@ This repository serves as a portfolio of networking projects that explore differ
 - [Getting Started](#-getting-started)
 - [Installation](#-installation)
 - [Usage](#-usage)
-- [Project Structure](#-project-structure)
 - [Contributing](#-contributing)
 - [Roadmap](#-roadmap)
 - [License](#-license)
