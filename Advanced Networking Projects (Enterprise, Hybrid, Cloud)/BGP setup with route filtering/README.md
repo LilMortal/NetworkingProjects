@@ -15,7 +15,6 @@ The implementation showcases a three-router BGP topology where **RouterA (AS 650
 
 - [Network Architecture](#-network-architecture)
 - [Route Filtering Implementation](#️-route-filtering-implementation)
-- [Repository Structure](#-repository-structure)
 - [Configuration Files](#-configuration-files)
 - [PlantUML Diagrams](#-plantuml-diagrams)
 - [Installation & Setup](#-installation--setup)
