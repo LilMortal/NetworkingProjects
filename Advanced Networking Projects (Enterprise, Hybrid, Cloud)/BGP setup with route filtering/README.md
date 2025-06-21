@@ -91,42 +91,6 @@ route-map OUTBOUND permit 10
 - ✅ **172.16.0.0/16** - **ADVERTISED** to RouterB only
 - ❌ All other prefixes - **BLOCKED**
 
-## 📁 Repository Structure
-
-```
-BGP-setup-with-route-filtering/
-├── README.md                           # This comprehensive guide
-├── diagrams/
-│   ├── bgp-topology.puml              # PlantUML network diagram
-│   ├── bgp-topology.png               # Rendered topology image
-│   ├── route-flow.puml                # Route advertisement flow
-│   └── filtering-process.puml         # Route filtering visualization
-├── configs/
-│   ├── RouterA-config.txt             # Complete RouterA configuration
-│   ├── RouterB-config.txt             # Complete RouterB configuration
-│   ├── RouterC-config.txt             # Complete RouterC configuration
-│   ├── prefix-lists/
-│   │   ├── inbound-filters.txt        # Inbound prefix list definitions
-│   │   └── outbound-filters.txt       # Outbound prefix list definitions
-│   └── route-maps/
-│       ├── inbound-policies.txt       # Inbound route map configurations
-│       └── outbound-policies.txt      # Outbound route map configurations
-├── verification/
-│   ├── show-commands.txt              # BGP verification commands
-│   ├── expected-outputs.txt           # Expected command outputs
-│   └── troubleshooting-guide.md       # Common issues and solutions
-├── docs/
-│   ├── bgp-fundamentals.md            # BGP protocol overview
-│   ├── route-filtering-guide.md       # Detailed filtering explanation
-│   ├── lab-setup-instructions.md     # Physical/virtual lab setup
-│   └── certification-notes.md        # CCNA/CCNP relevant information
-└── html-mockup/
-    ├── index.html                     # Interactive visualization
-    ├── styles.css                     # Visualization styling
-    ├── script.js                      # Interactive functionality
-    └── README.md                      # HTML mockup documentation
-```
-
 ## 🔧 Configuration Files
 
 ### RouterA Complete Configuration
