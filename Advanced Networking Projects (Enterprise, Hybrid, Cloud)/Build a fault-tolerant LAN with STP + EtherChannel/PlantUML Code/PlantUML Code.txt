@@ -1,1 +1,55 @@
-dsv 
+@startuml
+skinparam linetype ortho
+skinparam defaultTextAlignment center
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor White
+  BorderColor Black
+  RoundCorner 10
+}
+left to right direction
+
+' Define switches
+rectangle "SW1\n(Root Bridge)" as SW1 #LightBlue
+rectangle "SW2" as SW2 #LightGray
+rectangle "SW3" as SW3 #LightGray
+
+' EtherChannel Groups
+rectangle "Port-Channel 1\n(EtherChannel)" as EC1 #Yellow
+rectangle "Port-Channel 2\n(EtherChannel)" as EC2 #Yellow
+rectangle "Port-Channel 3\n(EtherChannel)" as EC3 #Yellow
+
+' Interconnects using EtherChannel
+SW1 -down- EC1 : Fa0/1\nFa0/2
+EC1 -down- SW2 : Fa0/1\nFa0/2
+
+SW1 -down- EC2 : Fa0/3\nFa0/4
+EC2 -down- SW3 : Fa0/1\nFa0/2
+
+SW2 -down- EC3 : Fa0/3\nFa0/4
+EC3 -down- SW3 : Fa0/3\nFa0/4
+
+' STP Roles and Port States
+note right of SW1
+  Root Bridge
+  All ports forwarding
+end note
+
+note bottom of EC1
+  STP: Root Port (SW2) ↔ Designated (SW1)
+  All forwarding
+end note
+
+note bottom of EC2
+  STP: Root Port (SW3) ↔ Designated (SW1)
+  All forwarding
+end note
+
+note bottom of EC3
+  STP: Alternate Port (SW3 side)
+  STP: Designated Port (SW2 side)
+  SW3 blocks one port to prevent loop
+end note
+
+@enduml
