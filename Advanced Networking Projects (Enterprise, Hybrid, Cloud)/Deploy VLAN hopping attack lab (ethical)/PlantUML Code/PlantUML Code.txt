@@ -1,1 +1,62 @@
-dsv 
+@startuml
+title VLAN Hopping Lab: Attack Simulation and Mitigation
+
+actor Admin as A
+participant "Attacker\n(Lab PC)" as Attacker
+participant "Access Switch\n(SW1)" as SW1
+participant "Target VLAN Host\n(Victim PC)" as Victim
+
+database "VLAN 10\nUser VLAN" as VLAN10
+database "VLAN 20\nAdmin VLAN" as VLAN20
+
+== Step 1: Lab Network Setup ==
+
+A -> SW1: Create VLAN 10 (Users), VLAN 20 (Admin)
+SW1 -> SW1: vlan 10\n vlan 20
+
+A -> SW1: Assign Fa0/1 to VLAN 10 (Attacker)
+SW1 -> SW1: interface Fa0/1\n switchport access vlan 10
+
+A -> SW1: Assign Fa0/2 to VLAN 20 (Victim)
+SW1 -> SW1: interface Fa0/2\n switchport access vlan 20
+
+== Step 2: Attack Type 1 - Switch Spoofing ==
+
+Attacker -> SW1: Sends DTP packets (Dynamic Trunking Protocol)
+SW1 -> Attacker: Negotiates trunk (if DTP enabled)
+Attacker -> SW1: Gains trunk access\nAccess to all VLANs
+
+note right of Attacker
+Attacker now can tag packets for VLAN 20\nand bypass VLAN isolation
+end note
+
+== Step 3: Attack Type 2 - Double Tagging ==
+
+Attacker -> SW1: Sends double-tagged 802.1Q frame\nOuter Tag: VLAN 10\nInner Tag: VLAN 20
+SW1 -> SW1: Removes first tag (VLAN 10)
+SW1 -> Victim: Forwards to VLAN 20
+
+note right of Victim
+Victim receives packet\nThinks it came from VLAN 20
+end note
+
+== Step 4: Testing the Attack ==
+
+Attacker -> Victim: Send ICMP/ping or probe
+Victim -> Attacker: Responds (if vulnerable)
+
+== Step 5: Mitigation Steps ==
+
+A -> SW1: Disable DTP on all access ports
+SW1 -> SW1: switchport mode access\n switchport nonegotiate
+
+A -> SW1: Enable VLAN tag filtering and ACLs
+
+A -> SW1: Use native VLAN tagging (different unused VLAN)
+SW1 -> SW1: switchport trunk native vlan 999
+
+note right of SW1
+Attack mitigated\nAccess ports no longer accept DTP\nDouble tagging blocked
+end note
+
+@enduml
