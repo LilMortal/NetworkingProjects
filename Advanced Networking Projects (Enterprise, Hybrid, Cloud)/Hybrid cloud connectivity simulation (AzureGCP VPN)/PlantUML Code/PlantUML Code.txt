@@ -1,1 +1,36 @@
-dsv 
+@startuml
+title Simplified Hybrid Cloud VPN (Azure ↔ GCP)
+
+actor Admin
+participant "Azure VPN Gateway\n10.10.0.1" as AzureVPN
+participant "GCP Cloud VPN\n10.20.0.1" as GCPVPN
+actor "Azure Client\n10.10.1.10" as Client
+participant "GCP Service (DB)\n10.20.0.100" as DB
+
+== Step 1: Setup VPN Tunnel ==
+
+Admin -> AzureVPN: Create VPN Gateway
+Admin -> GCPVPN: Create VPN Tunnel
+
+AzureVPN <-> GCPVPN: Establish IPSec Tunnel
+
+== Step 2: Configure Routing ==
+
+Admin -> AzureVPN: Add route to 10.20.0.0/16 via VPN
+Admin -> GCPVPN: Add route to 10.10.0.0/16 via VPN
+
+== Step 3: Client Accesses GCP Service ==
+
+Client -> AzureVPN: Request to 10.20.0.100 (DB)
+AzureVPN -> GCPVPN: Forward via VPN tunnel
+GCPVPN -> DB: Deliver request
+DB --> GCPVPN: Send response
+GCPVPN -> AzureVPN: Forward response
+AzureVPN -> Client: Deliver response
+
+== Step 4: Monitor VPN ==
+
+Admin -> AzureVPN: Check VPN status
+AzureVPN -> Admin: Status = Connected
+
+@enduml
