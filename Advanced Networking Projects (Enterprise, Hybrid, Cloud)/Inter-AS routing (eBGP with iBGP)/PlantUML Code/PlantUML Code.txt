@@ -1,1 +1,49 @@
-dsv 
+@startuml
+title Inter-AS Routing: eBGP between AS65001 and AS65002, iBGP inside ASes
+
+actor Admin
+
+participant "R1 (AS65001)\nEdge Router" as R1
+participant "R2 (AS65001)\nInternal Router" as R2
+participant "R3 (AS65002)\nEdge Router" as R3
+participant "R4 (AS65002)\nInternal Router" as R4
+
+== Step 1: iBGP Setup in AS65001 ==
+
+Admin -> R1: Configure iBGP with R2
+R1 -> R2: Establish iBGP session
+R2 -> R1: Confirm iBGP session
+
+== Step 2: iBGP Setup in AS65002 ==
+
+Admin -> R3: Configure iBGP with R4
+R3 -> R4: Establish iBGP session
+R4 -> R3: Confirm iBGP session
+
+== Step 3: eBGP Setup Between AS65001 and AS65002 ==
+
+Admin -> R1: Configure eBGP with R3
+Admin -> R3: Configure eBGP with R1
+R1 <-> R3: Establish eBGP session
+
+== Step 4: Prefix Advertisement from AS65001 ==
+
+R2 -> R1: Advertise internal prefixes (e.g., 10.1.0.0/16)
+R1 -> R3: Advertise prefixes to eBGP peer (AS65002)
+
+== Step 5: Prefix Reception in AS65002 ==
+
+R3 -> R4: Advertise received prefixes via iBGP
+R4 -> R3: Confirm route reception
+
+== Step 6: Prefix Advertisement from AS65002 ==
+
+R4 -> R3: Advertise internal prefixes (e.g., 10.2.0.0/16)
+R3 -> R1: Advertise prefixes to eBGP peer (AS65001)
+
+== Step 7: Prefix Reception in AS65001 ==
+
+R1 -> R2: Advertise received prefixes via iBGP
+R2 -> R1: Confirm route reception
+
+@enduml
