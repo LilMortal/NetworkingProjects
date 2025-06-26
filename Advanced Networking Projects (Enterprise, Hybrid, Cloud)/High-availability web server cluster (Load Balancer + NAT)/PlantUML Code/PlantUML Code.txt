@@ -1,1 +1,60 @@
-dsv 
+@startuml
+title High-Availability Web Server Cluster (Load Balancer + NAT)
+
+actor "Client" as User
+participant "Load Balancer\n(Public IP: 203.0.113.10)" as LB
+participant "Web Server 1\n(WS1 - 192.168.1.101)" as WS1
+participant "Web Server 2\n(WS2 - 192.168.1.102)" as WS2
+database "Health Check Service" as Health
+
+== Step 1: Health Checks ==
+
+Health -> WS1: HTTP GET /health
+WS1 --> Health: 200 OK
+
+Health -> WS2: HTTP GET /health
+WS2 --> Health: 200 OK
+
+LB -> Health: Update backend status
+note right of LB
+Only healthy servers are in pool
+end note
+
+== Step 2: Client Request to Web Service ==
+
+User -> LB: HTTP GET http://203.0.113.10
+LB -> LB: Select backend (WS1 or WS2)
+
+alt WS1 is healthy
+  LB -> WS1: DNAT to 192.168.1.101
+  WS1 --> LB: HTTP 200 OK
+else WS1 is down
+  LB -> WS2: DNAT to 192.168.1.102
+  WS2 --> LB: HTTP 200 OK
+end
+
+LB --> User: HTTP 200 OK (from backend)
+
+== Step 3: Failover Scenario ==
+
+WS1 -x WS1: Simulate failure
+Health -> WS1: GET /health
+WS1 --> Health: No response
+
+Health -> LB: Remove WS1 from pool
+
+User -> LB: HTTP GET
+LB -> WS2: Forward request only to healthy backend
+WS2 --> LB: HTTP 200 OK
+LB --> User: Response from WS2
+
+== Step 4: WS1 Recovery ==
+
+WS1 -> Health: /health returns 200 OK
+Health -> LB: Add WS1 back to pool
+
+note right of LB
+Load rebalanced across WS1 and WS2
+end note
+
+@enduml
