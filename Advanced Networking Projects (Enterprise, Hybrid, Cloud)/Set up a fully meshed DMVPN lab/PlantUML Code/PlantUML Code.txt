@@ -1,1 +1,58 @@
-dsv 
+@startuml
+title Fully Meshed DMVPN Lab Setup
+
+actor Admin
+
+participant "Hub Router\nPublic: 203.0.113.1\nTunnel: 10.0.0.1" as Hub
+participant "Spoke1\nPublic: 198.51.100.1\nTunnel: 10.0.0.2" as Spoke1
+participant "Spoke2\nPublic: 192.0.2.1\nTunnel: 10.0.0.3" as Spoke2
+
+== Step 1: Configure Tunnel Interfaces ==
+
+Admin -> Hub: Configure Tunnel0 (mGRE, NHRP Server)
+note right of Hub
+ip nhrp map multicast dynamic\n
+ip nhrp network-id 1\n
+ipsec transform-set and profile
+end note
+
+Admin -> Spoke1: Configure Tunnel0 (NHRP Client)
+Admin -> Spoke2: Configure Tunnel0 (NHRP Client)
+
+== Step 2: NHRP Registration ==
+
+Spoke1 -> Hub: NHRP registration (maps 10.0.0.2 to 198.51.100.1)
+Spoke2 -> Hub: NHRP registration (maps 10.0.0.3 to 192.0.2.1)
+
+Hub -> Spoke1: NHRP Reply (registration successful)
+Hub -> Spoke2: NHRP Reply (registration successful)
+
+== Step 3: Spoke-to-Spoke Dynamic Discovery ==
+
+Spoke1 -> Hub: NHRP Resolution Request for 10.0.0.3
+Hub -> Spoke1: NHRP Reply (10.0.0.3 is at 192.0.2.1)
+
+Spoke2 -> Hub: NHRP Resolution Request for 10.0.0.2
+Hub -> Spoke2: NHRP Reply (10.0.0.2 is at 198.51.100.1)
+
+== Step 4: Establish Direct Spoke-to-Spoke Tunnel ==
+
+Spoke1 -> Spoke2: Initiate GRE Tunnel over IPsec
+Spoke2 -> Spoke1: GRE/IPsec tunnel established
+
+note right of Spoke1
+Tunnel to 10.0.0.3\nis now direct over Internet\n(using IPsec)
+end note
+
+note right of Spoke2
+Tunnel to 10.0.0.2\nis now direct over Internet\n(using IPsec)
+end note
+
+== Step 5: Full Mesh Reachability ==
+
+Spoke1 -> Spoke2: Ping 10.0.0.3 ✓
+Spoke2 -> Spoke1: Ping 10.0.0.2 ✓
+Spoke1 -> Hub: Ping 10.0.0.1 ✓
+Spoke2 -> Hub: Ping 10.0.0.1 ✓
+
+@enduml
