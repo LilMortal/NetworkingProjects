@@ -1,1 +1,55 @@
-dsv 
+@startuml
+title 802.1X Authentication Configuration and Flow
+
+actor Admin as A
+participant "Supplicant (Client PC)" as Client
+participant "Authenticator (Switch)" as Switch
+participant "RADIUS Server\n(Authentication Server)" as RADIUS
+
+== Step 1: Configuration ==
+
+A -> Switch: Enable 802.1X globally
+Switch -> Switch: dot1x system-auth-control
+
+A -> Switch: Configure interface for 802.1X
+Switch -> Switch: interface FastEthernet0/1\n switchport mode access\n authentication port-control auto\n dot1x pae authenticator
+
+A -> RADIUS: Configure RADIUS server
+RADIUS -> RADIUS: Set client IP = Switch IP\n Shared secret = "radius123"
+
+A -> Switch: Add RADIUS server config
+Switch -> Switch: radius-server host 10.1.1.10 key radius123
+
+== Step 2: Authentication Process ==
+
+Client -> Switch: Link Up (EAPOL-Start)
+Switch -> Client: EAP-Request/Identity
+Client -> Switch: EAP-Response/Identity (e.g., user@domain)
+Switch -> RADIUS: Access-Request (includes identity)
+
+RADIUS -> Switch: Access-Challenge (e.g., EAP-MD5 challenge)
+Switch -> Client: EAP-Request (MD5 challenge)
+Client -> Switch: EAP-Response (MD5 hash)
+Switch -> RADIUS: Access-Request (EAP response)
+
+RADIUS -> Switch: Access-Accept (authentication success)
+Switch -> Client: EAP-Success
+
+note right of Switch
+Port is now authorized\nClient has network access
+end note
+
+== Step 3: Testing & Verification ==
+
+A -> Switch: show dot1x interface FastEthernet0/1
+Switch -> A: Port status: Authorized
+
+A -> RADIUS: Verify log\n(User authenticated successfully)
+
+A -> Client: Attempt network access
+Client -> Internet: Ping www.example.com
+note right of Client
+Network access succeeds
+end note
+
+@enduml
