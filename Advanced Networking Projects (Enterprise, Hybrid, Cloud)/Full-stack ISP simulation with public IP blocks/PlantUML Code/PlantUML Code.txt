@@ -1,1 +1,58 @@
-dsv 
+@startuml
+title Full-stack ISP Simulation with Public IP Blocks
+
+actor Admin
+participant "Upstream ISP\n(Tier-1 Provider)" as Tier1
+participant "ISP Core Router\n(AS 65000, BGP)" as Core
+participant "ISP Edge Router\n(NAT, DHCP, DNS)" as Edge
+participant "Customer Router\n(Home Gateway)" as CPE
+actor "Customer Device" as User
+database "ISP Services\n(DHCP, DNS, NAT Pool)" as Services
+participant "Monitoring System\n(NMS, SNMP)" as Monitor
+
+== Step 1: Public IP Block Allocation ==
+
+Tier1 -> Core: Assigns /22 block (e.g., 203.0.113.0/22)
+Tier1 -> Core: Establish BGP peering (AS 65000 ↔ AS 3356)
+
+== Step 2: BGP Routing Setup ==
+
+Admin -> Core: Configure BGP\nAdvertise 203.0.113.0/22
+Core -> Tier1: BGP UPDATE (Origin: 203.0.113.0/22)
+Tier1 -> Core: BGP Prefix ACK
+
+== Step 3: Edge Router Setup ==
+
+Admin -> Edge: Configure NAT pool from public /22
+Edge -> Services: NAT Pool = 203.0.113.10 - 203.0.113.100
+
+Admin -> Edge: Enable DHCP for customers\nDHCP range: 192.168.100.0/24
+Edge -> Services: DHCP, DNS forwarding enabled
+
+== Step 4: Customer Provisioning ==
+
+CPE -> Edge: DHCP Discover
+Edge -> CPE: DHCP Offer (192.168.100.10)
+CPE -> Edge: DHCP Request
+Edge -> CPE: DHCP ACK
+
+CPE -> Services: DNS query (e.g., www.example.com)
+Services -> CPE: DNS Response (93.184.216.34)
+
+== Step 5: Internet Access Flow ==
+
+User -> CPE: HTTP Request
+CPE -> Edge: Forward packet (192.168.100.10 → Internet)
+Edge -> Services: NAT applied (203.0.113.10)
+Edge -> Core: Packet routed to Tier1
+Core -> Tier1: Forwards to Internet
+
+== Step 6: Monitoring and Logs ==
+
+Edge -> Monitor: SNMP Traps, NetFlow
+Core -> Monitor: BGP state, interface stats
+Services -> Monitor: DHCP logs, DNS stats
+
+Admin -> Monitor: View usage reports, alerts
+
+@enduml
