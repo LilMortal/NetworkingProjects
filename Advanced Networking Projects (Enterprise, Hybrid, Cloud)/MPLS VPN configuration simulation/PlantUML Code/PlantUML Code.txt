@@ -1,1 +1,45 @@
-dsv 
+@startuml
+title MPLS VPN Configuration Simulation
+
+actor Admin
+
+participant "CE1\nCustomer Edge Router Site A\n(10.1.1.1/24)" as CE1
+participant "PE1\nProvider Edge Router Site A\n(VRF-A)" as PE1
+participant "P1\nMPLS Core Router" as P1
+participant "PE2\nProvider Edge Router Site B\n(VRF-A)" as PE2
+participant "CE2\nCustomer Edge Router Site B\n(10.2.2.1/24)" as CE2
+participant "BGP/MPLS Control Plane" as BGP
+
+== Step 1: Admin configures VRFs on PE routers ==
+
+Admin -> PE1: Configure VRF 'Customer-A'\nImport/Export Route Targets
+Admin -> PE2: Configure VRF 'Customer-A'\nImport/Export Route Targets
+
+== Step 2: CE1 advertises routes to PE1 ==
+
+CE1 -> PE1: Advertise subnet 10.1.1.0/24
+
+== Step 3: PE1 installs routes in VRF and advertises to BGP ==
+
+PE1 -> BGP: Advertise VPNv4 route 10.1.1.0/24 with Route Target
+BGP -> PE2: Distribute VPNv4 route 10.1.1.0/24
+
+== Step 4: PE2 installs routes in VRF and advertises to CE2 ==
+
+PE2 -> CE2: Advertise subnet 10.1.1.0/24 in VRF
+
+== Step 5: CE2 sends packet to CE1 through MPLS Core ==
+
+CE2 -> PE2: Send packet to 10.1.1.1
+PE2 -> P1: Push MPLS labels and forward packet
+P1 -> PE1: MPLS label switched packet
+PE1 -> CE1: Forward packet in VRF to CE1
+
+== Step 6: Return traffic from CE1 to CE2 ==
+
+CE1 -> PE1: Send packet to 10.2.2.1
+PE1 -> P1: Push MPLS labels and forward
+P1 -> PE2: MPLS label switched packet
+PE2 -> CE2: Deliver packet
+
+@enduml
