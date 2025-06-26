@@ -1,1 +1,67 @@
-dsv 
+@startuml
+title Deploy DHCP Failover on Windows Server (Load Balance or Hot Standby)
+
+actor Admin as A
+participant "DHCP Server 1\n(DHCP1)" as DHCP1
+participant "DHCP Server 2\n(DHCP2)" as DHCP2
+actor "DHCP Client" as Client
+
+== Step 1: Install DHCP Role ==
+
+A -> DHCP1: Install-WindowsFeature DHCP -IncludeManagementTools
+A -> DHCP2: Install-WindowsFeature DHCP -IncludeManagementTools
+
+A -> DHCP1: netsh dhcp add securitygroups
+A -> DHCP2: netsh dhcp add securitygroups
+
+A -> DHCP1: Restart-Service DHCPServer
+A -> DHCP2: Restart-Service DHCPServer
+
+== Step 2: Authorize DHCP Servers in AD ==
+
+A -> DHCP1: netsh dhcp add server <FQDN> <IP>
+A -> DHCP2: netsh dhcp add server <FQDN> <IP>
+
+== Step 3: Create DHCP Scope on DHCP1 ==
+
+A -> DHCP1: Create scope "OfficeLAN"\nRange: 192.168.1.100 - 192.168.1.200\nSubnet: 255.255.255.0\nGateway: 192.168.1.1
+
+== Step 4: Configure DHCP Failover ==
+
+A -> DHCP1: Right-click scope > Configure Failover...
+DHCP1 -> DHCP2: Initiates failover partnership
+
+note right of DHCP1
+Choose Mode:\n• Load Balance (default)\n• Hot Standby
+end note
+
+DHCP2 -> DHCP1: Accepts partnership\nShares lease database
+
+note right of DHCP2
+Both servers now synchronize\nShared lease pool and states
+end note
+
+== Step 5: Client Request & Lease ==
+
+Client -> DHCP1: DHCP Discover
+DHCP1 -> DHCP2: Sync lease state (if load balance)
+DHCP1 --> Client: DHCP Offer
+Client -> DHCP1: DHCP Request
+DHCP1 --> Client: DHCP ACK
+
+== Step 6: Simulate DHCP1 Failure ==
+
+DHCP1 -x DHCP1: DHCP Service Down
+Client -> DHCP2: DHCP Renew Request
+DHCP2 -> Client: DHCP ACK (Responds as failover partner)
+
+note right of Client
+Client lease remains valid\nNo disruption in service
+end note
+
+== Step 7: Recovery ==
+
+DHCP1 -> DHCP2: Sync lease state after restart
+DHCP2 -> DHCP1: Update leases and failover status
+
+@enduml
