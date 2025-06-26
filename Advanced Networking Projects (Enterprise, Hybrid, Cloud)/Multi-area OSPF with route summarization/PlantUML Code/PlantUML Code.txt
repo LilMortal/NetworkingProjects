@@ -1,1 +1,55 @@
-dsv 
+@startuml
+title Multi-area OSPF with Route Summarization
+
+actor Admin
+
+participant "R1\nArea 0 Backbone Router" as R1
+participant "R4\nABR Area 0 & 1" as R4
+participant "R6\nABR Area 0 & 2" as R6
+participant "R2\nArea 1 Router" as R2
+participant "R3\nArea 1 Router" as R3
+participant "R5\nArea 2 Router" as R5
+
+== Step 1: OSPF Neighbor Formation ==
+
+R1 -> R4: Form OSPF adjacency in Area 0
+R4 -> R6: Form OSPF adjacency in Area 0
+R4 -> R2: Form OSPF adjacency in Area 1
+R4 -> R3: Form OSPF adjacency in Area 1
+R6 -> R5: Form OSPF adjacency in Area 2
+
+== Step 2: Intra-area LSAs (Link State Advertisements) ==
+
+R2 -> R4: Advertise subnet 10.1.1.0/24 in Area 1
+R3 -> R4: Advertise subnet 10.1.2.0/24 in Area 1
+R5 -> R6: Advertise subnet 10.2.1.0/24 in Area 2
+
+== Step 3: Route Summarization at ABRs ==
+
+note right of R4
+Summarize Area 1 routes:\n
+10.1.0.0/16 advertised to Area 0
+end note
+
+note right of R6
+Summarize Area 2 routes:\n
+10.2.0.0/16 advertised to Area 0
+end note
+
+R4 -> R1: Advertise summarized route 10.1.0.0/16 in Area 0
+R6 -> R1: Advertise summarized route 10.2.0.0/16 in Area 0
+
+== Step 4: Route Propagation in Area 0 ==
+
+R1 -> R4: Confirm route receipt
+R1 -> R6: Confirm route receipt
+
+== Step 5: Backbone to Areas Route Advertisement ==
+
+R1 -> R4: Advertise default route or other area routes
+R1 -> R6: Advertise default route or other area routes
+
+R4 -> R2: Forward summarized and backbone routes
+R6 -> R5: Forward summarized and backbone routes
+
+@enduml
