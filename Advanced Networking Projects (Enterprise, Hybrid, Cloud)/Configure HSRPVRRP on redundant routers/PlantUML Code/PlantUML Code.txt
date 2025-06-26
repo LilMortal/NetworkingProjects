@@ -1,1 +1,68 @@
-dsv 
+@startuml
+title HSRP & VRRP Configuration and Operation
+
+actor Admin as A
+
+participant "Router A" as RA
+participant "Router B" as RB
+database "LAN Switch" as LAN
+actor Client
+
+== Step 1: Configure Interfaces ==
+
+A -> RA: Assign IP: 192.168.1.2/24
+RA -> RA: Interface G0/1\n IP: 192.168.1.2
+A -> RB: Assign IP: 192.168.1.3/24
+RB -> RB: Interface G0/1\n IP: 192.168.1.3
+
+== Step 2: Configure HSRP ==
+
+A -> RA: Configure HSRP Group 1\n Virtual IP: 192.168.1.1\n Priority: 110
+RA -> RA: standby 1 ip 192.168.1.1\n standby 1 priority 110\n standby 1 preempt
+A -> RB: Configure HSRP Group 1\n Virtual IP: 192.168.1.1\n Priority: 100
+RB -> RB: standby 1 ip 192.168.1.1\n standby 1 priority 100\n standby 1 preempt
+
+note right of RA
+Router A becomes Active\n(because higher priority)
+end note
+note right of RB
+Router B is Standby
+end note
+
+== HSRP Operation ==
+
+Client -> LAN: Send packet to 192.168.1.1 (Virtual IP)
+LAN -> RA: ARP resolved to MAC of Active Router A
+RA -> Client: Responds and forwards packet
+
+== HSRP Failover ==
+
+RA -x RA: Simulate failure
+RB -> RB: Becomes Active router (due to preempt)
+
+== VRRP Configuration ==
+
+A -> RA: Configure VRRP Group 10\n Virtual IP: 192.168.2.1\n Priority: 120
+RA -> RA: vrrp 10 ip 192.168.2.1\n vrrp 10 priority 120\n vrrp 10 preempt
+A -> RB: Configure VRRP Group 10\n Virtual IP: 192.168.2.1\n Priority: 100
+RB -> RB: vrrp 10 ip 192.168.2.1\n vrrp 10 priority 100\n vrrp 10 preempt
+
+note right of RA
+Router A becomes Master\n(in VRRP)
+end note
+note right of RB
+Router B is Backup
+end note
+
+== VRRP Operation ==
+
+Client -> LAN: Send packet to 192.168.2.1
+LAN -> RA: MAC resolved to Master (RA)
+RA -> Client: Responds
+
+== VRRP Failover ==
+
+RA -x RA: Simulate failure
+RB -> RB: Takes over as VRRP Master
+
+@enduml
