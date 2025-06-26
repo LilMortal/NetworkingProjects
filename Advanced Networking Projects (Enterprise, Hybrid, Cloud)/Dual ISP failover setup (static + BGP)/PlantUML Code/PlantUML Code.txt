@@ -1,1 +1,40 @@
-dsv 
+@startuml
+title Dual ISP Failover (Static + BGP) - Simplified View
+
+actor Admin
+participant "Router R1" as R1
+participant "ISP A\n(Static Route)" as ISPA
+participant "ISP B\n(BGP Route)" as ISPB
+actor "Client" as Client
+
+== Initial Setup ==
+
+Admin -> R1: Configure interfaces\nG0/0 (ISP A), G0/1 (ISP B)
+Admin -> R1: Add static default route to ISP A\n(ip route 0.0.0.0 1.1.1.1)
+Admin -> R1: Configure BGP with ISP B\n(remote-as 65010)
+
+R1 -> ISPB: BGP peering established
+
+== Normal Operation ==
+
+Client -> R1: Internet traffic
+R1 -> ISPA: Route via static default
+ISPA -> Internet: Forwarded
+
+== ISP A Fails ==
+
+ISPA -x ISPA: Link Down
+R1 -> ISPB: Switch to BGP default route
+ISPB -> Internet: Traffic forwarded
+
+== ISP A Restored ==
+
+ISPA -> R1: Link Up
+R1 -> ISPA: Switches back to static route
+
+== Verification ==
+
+Admin -> R1: show ip route
+R1 -> Admin: Static route preferred\nBGP backup active
+
+@enduml
