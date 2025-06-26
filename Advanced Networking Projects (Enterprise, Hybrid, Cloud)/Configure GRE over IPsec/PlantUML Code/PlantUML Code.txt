@@ -1,1 +1,51 @@
-dsv 
+@startuml
+title GRE over IPsec Tunnel Configuration and Flow
+
+actor Admin as A
+
+participant "Router A" as RA
+participant "Router B" as RB
+database "Public Network" as Internet
+
+== Step 1: GRE Tunnel Configuration ==
+
+A -> RA: Define Tunnel Interface (Tunnel0)
+RA -> RA: tunnel source Gig0/0\n tunnel destination RB_PUBLIC_IP\n tunnel mode gre ip\n IP address 10.0.0.1/30
+A -> RB: Define Tunnel Interface (Tunnel0)
+RB -> RB: tunnel source Gig0/0\n tunnel destination RA_PUBLIC_IP\n tunnel mode gre ip\n IP address 10.0.0.2/30
+
+== Step 2: IP Routing via GRE ==
+
+RA -> RA: Add static/OSPF route via Tunnel0
+RB -> RB: Add static/OSPF route via Tunnel0
+
+== Step 3: IPsec Phase 1 (ISAKMP/IKE) ==
+
+RA -> RB: Initiate IKE Phase 1 (ISAKMP SA negotiation)
+RB -> RA: Exchange keys and proposals
+note right of RB
+  Parameters:
+  - Encryption: AES
+  - Hash: SHA
+  - DH Group: 2
+  - Lifetime: 86400
+end note
+
+== Step 4: IPsec Phase 2 (IPsec SA) ==
+
+RA -> RB: Negotiate IPsec SA for GRE traffic
+RB -> RA: Agree on transform-set and ACL
+
+== Step 5: Encrypt GRE with IPsec ==
+
+RA -> Internet: GRE Packet → Encapsulated in ESP (IPsec)
+Internet -> RB: IPsec ESP Packet
+RB -> RB: Decrypt ESP → Extract GRE Packet
+
+== Data Flow ==
+
+A -> RA: Send routed traffic
+RA -> RB: GRE over IPsec Tunnel
+RB -> RB: Route to internal destination
+
+@enduml
