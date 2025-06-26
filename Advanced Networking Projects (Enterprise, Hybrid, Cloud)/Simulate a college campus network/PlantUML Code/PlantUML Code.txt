@@ -1,1 +1,68 @@
-dsv 
+@startuml
+title Simulate a College Campus Network
+
+actor Admin
+
+participant "Core Router\n10.0.0.1" as Core
+participant "Firewall/NAT\n(Internet Access)" as FW
+participant "DNS/DHCP Server\n10.0.0.10" as Server
+participant "Distribution Switch 1\n(Engineering)" as Dist1
+participant "Distribution Switch 2\n(Science)" as Dist2
+participant "Access Switch\n(Eng-Building)" as Access1
+participant "Access Switch\n(Sci-Building)" as Access2
+participant "Wireless Controller\n& APs" as WiFi
+participant "Student Laptop\n(Eng VLAN 10)" as EngClient
+participant "Staff PC\n(Sci VLAN 20)" as SciClient
+participant "Lab PC\n(Admin VLAN 30)" as LabClient
+
+== Step 1: VLAN & IP Assignment ==
+
+Admin -> Dist1: Create VLANs 10, 20, 30
+Admin -> Dist2: Same VLANs for science side
+note right
+VLAN 10: Students (10.10.10.0/24)\n
+VLAN 20: Staff (10.10.20.0/24)\n
+VLAN 30: Admin/Lab (10.10.30.0/24)
+end note
+
+== Step 2: Trunk and Access Ports ==
+
+Dist1 -> Access1: Trunk link
+Dist2 -> Access2: Trunk link
+
+Access1 -> EngClient: Access VLAN 10
+Access2 -> SciClient: Access VLAN 20
+
+WiFi -> Dist1: Tagged traffic for VLANs 10 & 20
+
+== Step 3: DHCP and IP Allocation ==
+
+EngClient -> Server: DHCP Discover (VLAN 10)
+Server -> EngClient: Offer IP 10.10.10.100
+
+SciClient -> Server: DHCP Discover (VLAN 20)
+Server -> SciClient: Offer IP 10.10.20.50
+
+LabClient -> Server: DHCP Discover (VLAN 30)
+Server -> LabClient: Offer IP 10.10.30.10
+
+== Step 4: Inter-VLAN Routing & Internet Access ==
+
+EngClient -> Core: Ping 10.10.20.50 (Staff PC)
+Core -> SciClient: Route packet (inter-VLAN)
+
+SciClient -> Core: Access Internet (8.8.8.8)
+Core -> FW: NAT and Forward to Internet
+FW -> Core: Response from Internet
+
+== Step 5: DNS Resolution ==
+
+EngClient -> Server: DNS Query for "www.college.edu"
+Server -> EngClient: Reply with IP
+
+== Step 6: WiFi Access ==
+
+WiFi -> Server: Auth student user (RADIUS)
+Server -> WiFi: Success, assign VLAN 10
+
+@enduml
