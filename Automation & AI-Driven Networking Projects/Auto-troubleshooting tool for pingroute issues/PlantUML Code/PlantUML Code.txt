@@ -1,1 +1,68 @@
-dsv 
+@startuml
+title Auto-Troubleshooting Tool for Ping & Route Issues
+
+skinparam rectangle {
+  BackgroundColor<<User>> #FFD966
+  BackgroundColor<<Engine>> #9DC3E6
+  BackgroundColor<<TestModule>> #D5E8D4
+  BackgroundColor<<KB>> #F8CECC
+  BackgroundColor<<Device>> #FFE699
+  BackgroundColor<<Report>> #F4CCCC
+  BorderColor Black
+  RoundCorner 12
+}
+
+actor "Network Engineer / User" as USER
+
+rectangle "Auto-Troubleshooting Tool" {
+  
+  rectangle "Test Module\n- Ping Tests\n- Traceroute Checks\n- Packet Loss Detection" <<TestModule>> as TEST_MODULE
+  
+  rectangle "Diagnostic Engine\n- Analyze Test Results\n- Correlate Symptoms\n- Identify Root Causes" <<Engine>> as DIAGNOSTIC_ENGINE
+  
+  rectangle "Knowledge Base\n- Known Issues\n- Resolution Procedures\n- Historical Data" <<KB>> as KB
+  
+  rectangle "Report & Recommendation Module\n- Generate Diagnostics Report\n- Suggest Fixes\n- Provide Next Steps" <<Report>> as REPORT
+  
+}
+
+rectangle "Network Devices\n(Routers, Switches, Firewalls)" <<Device>> as NETWORK_DEVICES
+
+rectangle "Network Logs & Metrics\n(Syslogs, SNMP Data, NetFlow)" <<Device>> as NETWORK_LOGS
+
+USER --> TEST_MODULE : "Initiate Troubleshooting\n(Target IP/Network)"
+TEST_MODULE --> NETWORK_DEVICES : "Execute Ping & Traceroute"
+TEST_MODULE --> NETWORK_LOGS : "Retrieve Logs & Metrics"
+
+TEST_MODULE --> DIAGNOSTIC_ENGINE : "Send Test Results & Logs"
+DIAGNOSTIC_ENGINE --> KB : "Query for Known Issues"
+KB --> DIAGNOSTIC_ENGINE : "Return Possible Causes & Fixes"
+
+DIAGNOSTIC_ENGINE --> REPORT : "Send Diagnosis & Recommendations"
+REPORT --> USER : "Display Report & Suggested Actions"
+
+note top of TEST_MODULE
+  - Active Testing
+  - Latency & Reachability Checks
+  - Multi-hop Route Analysis
+end note
+
+note right of DIAGNOSTIC_ENGINE
+  - Pattern Matching
+  - Anomaly Detection
+  - Correlation of Symptoms
+end note
+
+note left of KB
+  - Continuously Updated
+  - Machine Learning Enhancements
+  - Historical Incident Repository
+end note
+
+note bottom of REPORT
+  - Clear Actionable Insights
+  - Exportable Reports (PDF, Email)
+  - Integration with Ticketing Systems
+end note
+
+@enduml
