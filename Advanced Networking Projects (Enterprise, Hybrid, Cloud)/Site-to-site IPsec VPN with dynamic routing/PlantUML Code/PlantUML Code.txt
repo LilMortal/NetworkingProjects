@@ -1,1 +1,62 @@
-dsv 
+@startuml
+' Title and styling
+title Site-to-Site IPsec VPN with Dynamic Routing
+
+skinparam rectangle {
+  BackgroundColor<<Gateway>> LightBlue
+  BackgroundColor<<LAN>> LightGreen
+  BackgroundColor<<Cloud>> LightGray
+  BorderColor Black
+  RoundCorner 15
+}
+
+skinparam node {
+  BackgroundColor White
+  BorderColor Black
+  FontSize 12
+}
+
+' Define nodes for Site A
+package "Site A" {
+  rectangle "LAN A\n(192.168.1.0/24)" <<LAN>> as LAN_A
+
+  rectangle "VPN Gateway A\n(public IP: 198.51.100.1)\n- IPsec Endpoint\n- Dynamic Routing Peer" <<Gateway>> as VPN_A
+}
+
+' Define nodes for Site B
+package "Site B" {
+  rectangle "LAN B\n(192.168.2.0/24)" <<LAN>> as LAN_B
+
+  rectangle "VPN Gateway B\n(public IP: 203.0.113.1)\n- IPsec Endpoint\n- Dynamic Routing Peer" <<Gateway>> as VPN_B
+}
+
+' Internet Cloud
+cloud "Internet\n(Transit Network)" <<Cloud>> as INTERNET
+
+' Connections within Site A
+LAN_A --> VPN_A : "Private Network Traffic"
+
+' Connections within Site B
+LAN_B --> VPN_B : "Private Network Traffic"
+
+' VPN Tunnel over Internet
+VPN_A -- INTERNET : "IPsec Tunnel (IKE + ESP)\n- Encrypted\n- Authenticated"
+VPN_B -- INTERNET
+
+' Dynamic Routing Peering over Tunnel
+VPN_A <..> VPN_B : "Dynamic Routing Protocol\n(e.g., OSPF/BGP)\n- Route Exchange\n- Keepalive"
+
+' Optional: Show Routing Table exchange concept
+note right of VPN_A
+  Routing Table
+  \- LAN A routes
+  \- Learned routes from VPN B
+end note
+
+note left of VPN_B
+  Routing Table
+  \- LAN B routes
+  \- Learned routes from VPN A
+end note
+
+@enduml
