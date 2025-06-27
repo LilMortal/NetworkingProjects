@@ -1,1 +1,73 @@
-dsv 
+@startuml
+title Anomaly Detection in Network Traffic (Time Series Model)
+
+skinparam rectangle {
+  BackgroundColor<<DataSource>> #FFF2CC
+  BackgroundColor<<Preprocessing>> #D5E8D4
+  BackgroundColor<<Model>> #9DC3E6
+  BackgroundColor<<Storage>> #F8CECC
+  BackgroundColor<<Alerting>> #F4CCCC
+  BackgroundColor<<User>> #FFE699
+  BorderColor Black
+  RoundCorner 12
+}
+
+actor "Network Administrator" as ADMIN
+
+rectangle "Network Devices\n(Routers, Switches, Firewalls)" <<DataSource>> as NET_DEVICES
+rectangle "Traffic Collector\n(e.g., NetFlow, sFlow, Packet Capture)" <<DataSource>> as COLLECTOR
+
+rectangle "Data Preprocessing\n- Cleaning\n- Aggregation\n- Feature Extraction\n(e.g., Traffic Volume, Packet Rate)" <<Preprocessing>> as PREPROCESS
+
+rectangle "Time Series Anomaly Detection Model\n(e.g., LSTM, ARIMA)\n- Train & Predict\n- Detect Anomalies" <<Model>> as MODEL
+
+rectangle "Alerting System\n- Real-time Alerts\n- Thresholds & Notifications\n- Incident Management" <<Alerting>> as ALERT
+
+rectangle "Dashboard & Visualization\n- Traffic Trends\n- Anomaly Reports\n- Historical Data" <<User>> as DASHBOARD
+
+database "Raw Traffic Data Storage\n(Big Data Lake)" <<Storage>> as RAW_STORAGE
+database "Processed Features Storage\n(Time Series DB)" <<Storage>> as FEATURE_STORAGE
+database "Anomaly Logs & History" <<Storage>> as LOG_STORAGE
+
+' Data flows
+NET_DEVICES --> COLLECTOR : "Export Traffic Data"
+COLLECTOR --> RAW_STORAGE : "Store Raw Data"
+COLLECTOR --> PREPROCESS : "Stream Data"
+
+PREPROCESS --> FEATURE_STORAGE : "Store Processed Features"
+PREPROCESS --> MODEL : "Feature Vectors"
+
+MODEL --> ALERT : "Anomaly Detection Results"
+MODEL --> LOG_STORAGE : "Log Anomaly Events"
+
+ALERT --> ADMIN : "Send Alerts & Notifications"
+ADMIN --> DASHBOARD : "Monitor Network & Investigate"
+MODEL --> PREPROCESS : "Feedback Loop for Retraining"
+
+DASHBOARD --> LOG_STORAGE : "Query Anomaly History"
+DASHBOARD --> FEATURE_STORAGE : "Visualize Traffic Data"
+
+note top of MODEL
+  - Uses historical time series data
+  - Learns normal traffic patterns
+  - Flags deviations as anomalies
+end note
+
+note left of PREPROCESS
+  - Feature scaling & normalization
+  - Time window aggregation
+  - Noise reduction
+end note
+
+note right of ALERT
+  - Configurable alert thresholds
+  - Multi-channel notifications (email, SMS)
+  - Integration with SIEM
+end note
+
+note bottom of RAW_STORAGE
+  - Large scale storage
+  - Raw unprocessed data retention
+end note
+
+@enduml
