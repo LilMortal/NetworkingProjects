@@ -1,1 +1,70 @@
-dsv 
+@startuml
+title WAN Optimization using QoS and Compression
+
+skinparam rectangle {
+  BackgroundColor<<WAN>> LightYellow
+  BackgroundColor<<LAN>> LightGreen
+  BackgroundColor<<WOA>> LightBlue
+  BorderColor Black
+  RoundCorner 15
+}
+
+skinparam cloud {
+  BackgroundColor<<Internet>> LightGray
+  BorderColor Black
+  RoundCorner 25
+}
+
+' Site A
+package "Site A" {
+  rectangle "LAN A\n(10.1.1.0/24)" <<LAN>> as LAN_A
+
+  rectangle "WAN Optimization Appliance A\n- Compression Enabled\n- QoS Marking\n- Traffic Shaping" <<WOA>> as WOA_A
+}
+
+' Site B
+package "Site B" {
+  rectangle "LAN B\n(10.2.2.0/24)" <<LAN>> as LAN_B
+
+  rectangle "WAN Optimization Appliance B\n- Compression Enabled\n- QoS Marking\n- Traffic Shaping" <<WOA>> as WOA_B
+}
+
+' WAN Cloud
+cloud "WAN Link\n- QoS Policies Applied\n- Limited Bandwidth\n- Possible Latency" <<WAN>> as WAN
+
+' Connections within Site A
+LAN_A --> WOA_A : "User Traffic\n(e.g., HTTP, CIFS, VoIP)"
+
+' Connections within Site B
+LAN_B --> WOA_B : "User Traffic\n(e.g., HTTP, CIFS, VoIP)"
+
+' WAN Optimization link
+WOA_A --> WAN : "Compressed & QoS Marked Traffic"
+WAN --> WOA_B : "Compressed & QoS Marked Traffic"
+
+' Reverse direction
+WOA_B --> WAN : "Compressed & QoS Marked Traffic"
+WAN --> WOA_A : "Compressed & QoS Marked Traffic"
+
+' Traffic Flow Annotations
+note left of WOA_A
+  - Compress Data Streams
+  - Deduplicate Repetitive Data
+  - Mark Traffic with QoS Tags
+  - Prioritize Critical Applications
+end note
+
+note right of WAN
+  WAN Link Characteristics:
+  - QoS Enforcement (e.g., DSCP)
+  - Bandwidth Constraints
+  - Latency & Jitter
+end note
+
+note right of WOA_B
+  - Decompress Data
+  - Honor QoS Tags
+  - Forward to LAN B
+end note
+
+@enduml
