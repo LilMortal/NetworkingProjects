@@ -1,1 +1,64 @@
-dsv 
+@startuml
+title AI Script for Auto-Generating Cisco Configs from JSON
+
+skinparam rectangle {
+  BackgroundColor<<JSON>> #FFF2CC
+  BackgroundColor<<AI>> #D5E8D4
+  BackgroundColor<<Generator>> #9DC3E6
+  BackgroundColor<<Device>> #F8CECC
+  BackgroundColor<<System>> #E1D5E7
+  BorderColor Black
+  RoundCorner 12
+}
+
+actor "Network Engineer\n(Provides JSON Spec)" as ENGINEER
+
+rectangle "JSON Configuration\nSpecification\n(e.g., Interfaces, ACLs,\nRouting, VLANs)" <<JSON>> as JSON_INPUT
+
+rectangle "AI Script\n- Parse JSON\n- Interpret Intent\n- Generate Cisco CLI\n- Use Templates\n- Error Handling" <<AI>> as AI_SCRIPT
+
+rectangle "Config Generator Module\n- Template Engine\n- Syntax Formatter\n- Config Validation" <<Generator>> as CONFIG_GEN
+
+rectangle "Cisco Device\n(Router / Switch)\n- Accepts CLI Configs\n- Applies Configuration" <<Device>> as CISCO_DEVICE
+
+rectangle "Version Control System\n(Git Repo)" <<System>> as VCS
+
+rectangle "Monitoring & Logging\n- Config Change Logs\n- Validation Reports" <<System>> as MONITOR
+
+ENGINEER --> JSON_INPUT : "Create / Update JSON Spec"
+JSON_INPUT --> AI_SCRIPT : "Provide JSON Input"
+AI_SCRIPT --> CONFIG_GEN : "Generate Config Commands"
+CONFIG_GEN --> CISCO_DEVICE : "Deploy Config"
+CISCO_DEVICE --> CONFIG_GEN : "Feedback / Errors"
+CONFIG_GEN --> AI_SCRIPT : "Validation Results"
+
+CONFIG_GEN --> VCS : "Commit Config Files"
+AI_SCRIPT --> MONITOR : "Send Logs & Reports"
+CONFIG_GEN --> MONITOR : "Validation & Deployment Logs"
+
+note left of AI_SCRIPT
+  - Natural Language Processing
+  - Template-Based Generation
+  - Syntax Error Detection
+  - Multi-vendor Extensibility
+end note
+
+note right of CISCO_DEVICE
+  - Supports IOS, IOS-XE, NX-OS
+  - Real-time Config Apply
+  - Rollback on Failure
+end note
+
+note top of VCS
+  - Versioned Configurations
+  - Audit Trail
+  - Collaboration
+end note
+
+note bottom of MONITOR
+  - Alerts on Failure
+  - Usage Analytics
+  - Compliance Checks
+end note
+
+@enduml
