@@ -1,1 +1,83 @@
-dsv 
+@startuml
+title Zero Trust Network Architecture (ZTNA) Simulation
+
+skinparam rectangle {
+  BackgroundColor<<User>> #FFD966
+  BackgroundColor<<Device>> #FFE699
+  BackgroundColor<<PolicyEngine>> #9BC2E6
+  BackgroundColor<<Resource>> #C9DAF8
+  BackgroundColor<<Network>> #D9EAD3
+  BorderColor Black
+  RoundCorner 15
+}
+
+skinparam cloud {
+  BackgroundColor<<Internet>> #E6E6E6
+  BorderColor Black
+  RoundCorner 25
+}
+
+' Users and Devices outside traditional perimeter
+package "Users & Devices" {
+  actor "User\n(Authenticated & Verified)" <<User>> as USER
+  rectangle "Device\n(Endpoint Security + MFA)" <<Device>> as DEVICE
+}
+
+' Zero Trust Policy Engine / Access Broker
+rectangle "Zero Trust Controller\n(Policy Engine & Access Broker)\n- Identity Verification\n- Access Decisions\n- Continuous Monitoring" <<PolicyEngine>> as POLICY_ENGINE
+
+' Network Micro-segments (applications, data, services)
+package "Micro-segmented Resources" {
+  rectangle "App Server\n(Web, API)" <<Resource>> as APP_SERVER
+  rectangle "Database\n(Encrypted Storage)" <<Resource>> as DB_SERVER
+  rectangle "File Share\n(Sensitive Data)" <<Resource>> as FILE_SHARE
+}
+
+' Network zones
+cloud "Untrusted Network (Internet)" <<Internet>> as INTERNET
+
+rectangle "Secure Network Segment" <<Network>> as SECURE_NET
+
+' Connections
+INTERNET --> USER : "Access Request"
+USER --> DEVICE : "Use Device with Endpoint Security"
+DEVICE --> POLICY_ENGINE : "Authenticate (MFA)\nRequest Access"
+
+POLICY_ENGINE --> SECURE_NET : "Access Decision\nGrant or Deny"
+POLICY_ENGINE --> USER : "Continuous Trust Evaluation\nAdaptive Policies"
+
+SECURE_NET --> APP_SERVER : "Allowed Application Access"
+SECURE_NET --> DB_SERVER : "Allowed DB Access"
+SECURE_NET --> FILE_SHARE : "Allowed File Access"
+
+' Micro-segmentation with least privilege
+APP_SERVER -[#0000FF,dashed]-> DB_SERVER : "Restricted API Calls"
+APP_SERVER -[#0000FF,dashed]-> FILE_SHARE : "Controlled File Access"
+
+' Logging & Auditing
+rectangle "Logging & Monitoring\n(Security Information & Event Management)" as LOG_MON
+POLICY_ENGINE --> LOG_MON : "Audit Logs & Alerts"
+APP_SERVER --> LOG_MON : "Application Logs"
+DB_SERVER --> LOG_MON : "DB Access Logs"
+USER --> LOG_MON : "User Behavior Logs"
+
+' Security Annotations
+note top of POLICY_ENGINE
+  - Enforces Least Privilege Access
+  - Validates Device Health & Identity
+  - Uses Continuous Monitoring
+end note
+
+note left of USER
+  - Identity Verified (MFA)
+  - Endpoint Security
+  - Dynamic Access Requests
+end note
+
+note right of SECURE_NET
+  - Micro-segmented Zones
+  - Encrypted Communication
+  - Policy-based Access Control
+end note
+
+@enduml
