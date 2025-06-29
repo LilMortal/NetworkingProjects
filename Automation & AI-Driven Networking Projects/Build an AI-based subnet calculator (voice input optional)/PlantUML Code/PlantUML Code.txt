@@ -1,1 +1,58 @@
-dsv 
+@startuml
+title AI-Based Subnet Calculator Architecture
+
+' Voice/Text Input Layer
+package "User Interface" {
+    [User]
+    [CLI Interface]
+    [Voice Input Handler]
+}
+
+' AI/NLP Engine
+package "AI Intent Engine" {
+    [Speech to Text] 
+    [NLP Parser]
+    [Intent Resolver]
+}
+
+' Subnet Processing Logic
+package "Subnet Calculation Engine" {
+    [Input Validator]
+    [Subnet Calculator Core]
+    [IP Range Generator]
+}
+
+' Output Layer
+package "Response Formatter & Output" {
+    [Result Formatter]
+    [UI Renderer]
+    [Logger / Audit]
+}
+
+' Voice flow
+[User] --> [Voice Input Handler] : speaks query
+[Voice Input Handler] --> [Speech to Text] : transcribe audio
+[Speech to Text] --> [NLP Parser] : send transcript
+
+' Text flow
+[User] --> [CLI Interface] : types input
+[CLI Interface] --> [NLP Parser] : send query
+
+' NLP to intent
+[NLP Parser] --> [Intent Resolver] : parse & extract intent
+[Intent Resolver] --> [Input Validator] : pass IP/CIDR
+
+' Validation & calculation
+[Input Validator] --> [Subnet Calculator Core] : verify & forward
+[Subnet Calculator Core] --> [IP Range Generator] : generate usable IPs, ranges
+
+' Format and return
+[IP Range Generator] --> [Result Formatter]
+[Result Formatter] --> [UI Renderer] : output via CLI/Web/App
+[Result Formatter] --> [Logger / Audit] : save for records
+
+' Optional error paths
+[Input Validator] --> [Result Formatter] : Invalid CIDR/IP
+[NLP Parser] --> [Result Formatter] : Unknown intent
+
+@enduml
