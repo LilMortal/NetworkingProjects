@@ -1,1 +1,69 @@
-dsv 
+@startuml
+title ML-Based Link Utilization Forecasting System
+
+actor "Network Analyst" as Analyst
+
+' 1. Data Collection
+package "Telemetry Ingestion Layer" {
+    [SNMP Poller]
+    [sFlow Collector]
+    [NetFlow Collector]
+    [Link Metadata Parser]
+}
+
+' 2. Data Preprocessing
+package "Preprocessing Engine" {
+    [Time Series Aggregator]
+    [Missing Data Handler]
+    [Feature Extractor]
+    [Scaler/Normalizer]
+}
+
+' 3. Forecasting Engine
+package "Forecasting Model" {
+    [Model Trainer (ARIMA/LSTM/RF)]
+    [Model Evaluator]
+    [Utilization Forecaster]
+}
+
+' 4. Output + Alerting
+package "Visualization & Alerting" {
+    [Trend Dashboard (Grafana/Plotly)]
+    [Forecast Exporter]
+    [Anomaly Detector]
+    [Threshold Alert Engine]
+}
+
+' 5. Storage
+package "Data Storage" {
+    [Time Series DB (InfluxDB)]
+    [Model Artifacts (Pickle/ONNX)]
+    [Forecast Results DB]
+}
+
+' Data Flow
+[SNMP Poller] --> [Time Series Aggregator]
+[sFlow Collector] --> [Time Series Aggregator]
+[NetFlow Collector] --> [Time Series Aggregator]
+[Link Metadata Parser] --> [Feature Extractor]
+
+[Time Series Aggregator] --> [Missing Data Handler]
+[Missing Data Handler] --> [Feature Extractor]
+[Feature Extractor] --> [Scaler/Normalizer]
+
+[Scaler/Normalizer] --> [Model Trainer (ARIMA/LSTM/RF)]
+[Scaler/Normalizer] --> [Utilization Forecaster]
+
+[Model Trainer (ARIMA/LSTM/RF)] --> [Model Evaluator]
+[Model Trainer (ARIMA/LSTM/RF)] --> [Model Artifacts (Pickle/ONNX)]
+
+[Utilization Forecaster] --> [Forecast Results DB]
+[Utilization Forecaster] --> [Trend Dashboard (Grafana/Plotly)]
+[Utilization Forecaster] --> [Forecast Exporter]
+[Utilization Forecaster] --> [Anomaly Detector]
+
+[Anomaly Detector] --> [Threshold Alert Engine]
+[Threshold Alert Engine] --> Analyst : Sends Forecast Alerts
+Analyst --> [Trend Dashboard (Grafana/Plotly)] : Views forecasted trends
+
+@enduml
