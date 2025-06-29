@@ -1,1 +1,56 @@
-dsv 
+@startuml
+title Network Topology Generation from Text using LLMs
+
+actor "Network Engineer" as User
+
+' User input interface
+package "Frontend / User Interface" {
+    [Web UI / CLI]
+    [Input Parser]
+}
+
+' LLM pipeline
+package "LLM Processor" {
+    [Prompt Formatter]
+    [LLM API (OpenAI/GPT/etc.)]
+    [LLM Output Parser]
+}
+
+' Topology engine
+package "Topology Generator" {
+    [Node & Link Builder]
+    [Topology Validator]
+    [Diagram Exporter]
+    [Data Exporter]
+}
+
+' Output targets
+package "Topology Output" {
+    [PlantUML Diagram]
+    [Graphviz Diagram]
+    [NetBox JSON Import]
+    [Topology YAML/JSON]
+}
+
+' User flow
+User --> [Web UI / CLI] : Enters network description
+[Web UI / CLI] --> [Input Parser] : Parse raw text
+[Input Parser] --> [Prompt Formatter] : Structure prompt
+
+' LLM interaction
+[Prompt Formatter] --> [LLM API (OpenAI/GPT/etc.)] : Send prompt
+[LLM API (OpenAI/GPT/etc.)] --> [LLM Output Parser] : Get response
+
+' Parse and construct topology
+[LLM Output Parser] --> [Node & Link Builder] : Extract devices + links
+[Node & Link Builder] --> [Topology Validator] : Check syntax and structure
+[Topology Validator] --> [Diagram Exporter]
+[Topology Validator] --> [Data Exporter]
+
+' Output options
+[Diagram Exporter] --> [PlantUML Diagram]
+[Diagram Exporter] --> [Graphviz Diagram]
+[Data Exporter] --> [NetBox JSON Import]
+[Data Exporter] --> [Topology YAML/JSON]
+
+@enduml
