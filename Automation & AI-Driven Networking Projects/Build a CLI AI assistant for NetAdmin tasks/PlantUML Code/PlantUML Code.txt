@@ -1,1 +1,54 @@
-dsv 
+@startuml
+title CLI AI Assistant for Network Administration
+
+' Define main components
+package "CLI Interface" {
+    [User]
+    [Terminal CLI]
+}
+
+package "AI Assistant Engine" {
+    [Natural Language Parser]
+    [Command Generator]
+    [Task Dispatcher]
+    [AI Model API]
+}
+
+package "Network Operations Layer" {
+    [Shell Executor]
+    [Network Tools]
+    [Permission Manager]
+}
+
+package "System & Logs" {
+    [Output Formatter]
+    [Logger]
+    [Audit Manager]
+}
+
+' Relationships and Flow
+User --> "Terminal CLI" : enters natural language command
+"Terminal CLI" --> "Natural Language Parser" : send input
+"Natural Language Parser" --> "AI Model API" : NLP processing
+"AI Model API" --> "Natural Language Parser" : structured intent & entities
+
+"Natural Language Parser" --> "Command Generator" : pass intent
+"Command Generator" --> "Task Dispatcher" : generate actionable command(s)
+
+"Task Dispatcher" --> "Permission Manager" : verify access rights
+"Permission Manager" --> "Shell Executor" : if approved
+
+"Task Dispatcher" --> "Shell Executor" : execute command
+"Shell Executor" --> "Network Tools" : e.g. ping, traceroute, etc.
+
+"Shell Executor" --> "Output Formatter" : format output
+"Output Formatter" --> "Terminal CLI" : display to user
+
+"Shell Executor" --> "Logger" : log raw output
+"Logger" --> "Audit Manager" : store for auditing
+
+' Optional: error handling
+"Permission Manager" --> "Output Formatter" : access denied message
+"AI Model API" --> "Output Formatter" : unsupported intent error
+
+@enduml
