@@ -1,1 +1,59 @@
-dsv 
+@startuml
+title Device Health Classifier System - Scikit-learn
+
+actor "Network Admin" as Admin
+
+' Data Source Layer
+package "Device Telemetry Sources" {
+    [SNMP Agent]
+    [Syslog Stream]
+    [Custom Metrics API]
+}
+
+' Data Collection Layer
+package "Data Collection & Ingestion" {
+    [Metric Poller]
+    [Log Collector]
+    [Data Normalizer]
+}
+
+' Machine Learning Core
+package "Scikit-learn Classifier" {
+    [Preprocessing Pipeline]
+    [Trained ML Model (RandomForestClassifier)]
+    [Health Prediction Engine]
+}
+
+' Post-Prediction Layer
+package "Results & Monitoring" {
+    [Result Logger]
+    [Status Dashboard]
+    [Alert Notifier]
+    [Historical DB]
+}
+
+' Admin interaction
+Admin --> [Status Dashboard] : Views health status
+Admin --> [Alert Notifier] : Receives alerts
+
+' Data flow from telemetry
+[SNMP Agent] --> [Metric Poller]
+[Syslog Stream] --> [Log Collector]
+[Custom Metrics API] --> [Metric Poller]
+
+' Normalization
+[Metric Poller] --> [Data Normalizer]
+[Log Collector] --> [Data Normalizer]
+
+' Preprocessing and classification
+[Data Normalizer] --> [Preprocessing Pipeline]
+[Preprocessing Pipeline] --> [Trained ML Model (RandomForestClassifier)]
+[Trained ML Model (RandomForestClassifier)] --> [Health Prediction Engine]
+
+' Prediction output
+[Health Prediction Engine] --> [Result Logger]
+[Health Prediction Engine] --> [Status Dashboard]
+[Health Prediction Engine] --> [Alert Notifier] : if status is Warning/Critical
+[Result Logger] --> [Historical DB]
+
+@enduml
