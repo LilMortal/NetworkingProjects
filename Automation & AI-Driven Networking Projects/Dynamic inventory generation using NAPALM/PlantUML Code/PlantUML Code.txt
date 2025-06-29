@@ -1,1 +1,65 @@
-dsv 
+@startuml
+title Dynamic Network Inventory Generation using NAPALM
+
+actor "Network Admin" as Admin
+
+' Device pool
+package "Network Devices (SSH/NETCONF)" {
+    [Cisco IOS]
+    [Juniper JunOS]
+    [Arista EOS]
+}
+
+' Core inventory builder
+package "Inventory Engine (Python + NAPALM)" {
+    [Device Inventory Loader]
+    [NAPALM Driver Loader]
+    [NAPALM Connection Manager]
+    [Facts Collector]
+    [Inventory Assembler]
+    [Exporter (YAML/JSON/DB)]
+    [Logger]
+}
+
+' External storage / consumers
+package "Inventory Output / Consumers" {
+    [Inventory File (YAML/JSON)]
+    [CMDB / IPAM DB]
+    [Ansible Dynamic Inventory]
+    [Web Dashboard]
+}
+
+' Admin triggers inventory build
+Admin --> [Device Inventory Loader] : Uploads list (CSV/YAML)
+Admin --> [Exporter (YAML/JSON/DB)] : Requests inventory snapshot
+
+' Load device info
+[Device Inventory Loader] --> [NAPALM Driver Loader] : Load platform info
+[NAPALM Driver Loader] --> [NAPALM Connection Manager] : Establish connection
+
+' Connection and data retrieval
+[NAPALM Connection Manager] --> [Cisco IOS] : connect & collect
+[NAPALM Connection Manager] --> [Juniper JunOS]
+[NAPALM Connection Manager] --> [Arista EOS]
+
+' Retrieve facts and interfaces
+[Cisco IOS] --> [Facts Collector] : send facts/interfaces
+[Juniper JunOS] --> [Facts Collector]
+[Arista EOS] --> [Facts Collector]
+
+' Build inventory
+[Facts Collector] --> [Inventory Assembler] : Normalize data
+[Inventory Assembler] --> [Exporter (YAML/JSON/DB)]
+
+' Export to outputs
+[Exporter (YAML/JSON/DB)] --> [Inventory File (YAML/JSON)]
+[Exporter (YAML/JSON/DB)] --> [CMDB / IPAM DB]
+[Exporter (YAML/JSON/DB)] --> [Ansible Dynamic Inventory]
+[Exporter (YAML/JSON/DB)] --> [Web Dashboard]
+
+' Logging
+[Device Inventory Loader] --> [Logger]
+[NAPALM Connection Manager] --> [Logger]
+[Exporter (YAML/JSON/DB)] --> [Logger]
+
+@enduml
