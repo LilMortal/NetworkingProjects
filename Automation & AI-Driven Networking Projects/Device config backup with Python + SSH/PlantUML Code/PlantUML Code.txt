@@ -1,1 +1,66 @@
-dsv 
+@startuml
+title Device Configuration Backup System - Python + SSH
+
+' Define external entities
+actor "Network Admin" as Admin
+
+' Define network devices group
+package "Network Devices (SSH Enabled)" {
+    [Router1]
+    [Switch1]
+    [Firewall1]
+}
+
+' Define Python-based automation system
+package "Python Backup System" {
+    [Inventory Loader]
+    [SSH Session Handler]
+    [Config Fetcher]
+    [Diff Engine]
+    [Backup Storage Manager]
+    [Scheduler]
+    [Logger]
+    [Notifier (Email/Slack)]
+}
+
+' Define backup storage options
+package "Backup Storage" {
+    [Local File System]
+    [Git Repository]
+    [Cloud Storage (e.g. S3)]
+}
+
+' Admin interaction
+Admin --> [Scheduler] : Configure schedule
+Admin --> [Inventory Loader] : Upload device list
+
+' Scheduler flow
+[Scheduler] --> [Inventory Loader] : Load device IPs/types
+[Inventory Loader] --> [SSH Session Handler] : Provide device metadata
+
+' SSH connection and config retrieval
+[SSH Session Handler] --> [Router1] : SSH login + commands
+[SSH Session Handler] --> [Switch1]
+[SSH Session Handler] --> [Firewall1]
+
+' Config fetching
+[Router1] --> [Config Fetcher] : Send config output
+[Switch1] --> [Config Fetcher]
+[Firewall1] --> [Config Fetcher]
+
+' Diffing logic
+[Config Fetcher] --> [Diff Engine] : Pass new config
+[Diff Engine] --> [Backup Storage Manager] : If changed
+
+' Store if new or updated
+[Backup Storage Manager] --> [Local File System]
+[Backup Storage Manager] --> [Git Repository]
+[Backup Storage Manager] --> [Cloud Storage (e.g. S3)]
+
+' Logging and alerts
+[SSH Session Handler] --> [Logger]
+[Diff Engine] --> [Logger]
+[Backup Storage Manager] --> [Logger]
+[Logger] --> [Notifier (Email/Slack)] : On failure/change
+
+@enduml
