@@ -1,1 +1,83 @@
-dsv 
+@startuml
+title Network Audit Report Generator (HTML + AI Summary)
+
+actor "Network Auditor" as Auditor
+
+' Phase 1: Data Collection
+package "Data Collection Engine" {
+    [Device Inventory Loader]
+    [SSH/NETCONF Collector]
+    [SNMP Poller]
+    [Configuration Fetcher]
+    [Performance Metrics Collector]
+}
+
+' Phase 2: Data Analysis
+package "Audit Analysis Engine" {
+    [Config Parser]
+    [Compliance Checker]
+    [Vulnerability Scanner]
+    [Performance Evaluator]
+    [Audit Result Aggregator]
+}
+
+' Phase 3: Report Generation
+package "Report Generator" {
+    [HTML Report Builder]
+    [Chart Renderer (D3/Chart.js)]
+    [Findings Formatter]
+    [AI Summary Generator (LLM API)]
+}
+
+' Phase 4: Output + Delivery
+package "Output & Delivery" {
+    [HTML Audit Report]
+    [PDF Export (Optional)]
+    [Email Dispatcher / Dashboard]
+}
+
+' Phase 5: Storage
+package "Audit Logs & History" {
+    [Historical Reports DB]
+    [Raw Device Snapshots]
+    [Summary Archive]
+}
+
+' User triggers the audit
+Auditor --> [Device Inventory Loader] : Initiate audit job
+[Device Inventory Loader] --> [SSH/NETCONF Collector]
+[Device Inventory Loader] --> [SNMP Poller]
+[Device Inventory Loader] --> [Configuration Fetcher]
+[Device Inventory Loader] --> [Performance Metrics Collector]
+
+' Collected data sent to analysis engine
+[SSH/NETCONF Collector] --> [Config Parser]
+[SNMP Poller] --> [Performance Evaluator]
+[Configuration Fetcher] --> [Config Parser]
+[Performance Metrics Collector] --> [Performance Evaluator]
+
+' Analysis pipeline
+[Config Parser] --> [Compliance Checker]
+[Compliance Checker] --> [Audit Result Aggregator]
+[Performance Evaluator] --> [Audit Result Aggregator]
+[Audit Result Aggregator] --> [Vulnerability Scanner]
+[Vulnerability Scanner] --> [Audit Result Aggregator]
+
+' Generate report
+[Audit Result Aggregator] --> [Findings Formatter]
+[Findings Formatter] --> [HTML Report Builder]
+[Findings Formatter] --> [AI Summary Generator (LLM API)]
+[AI Summary Generator (LLM API)] --> [HTML Report Builder]
+[HTML Report Builder] --> [Chart Renderer (D3/Chart.js)]
+[HTML Report Builder] --> [HTML Audit Report]
+
+' Archive and notify
+[HTML Audit Report] --> [PDF Export (Optional)]
+[HTML Audit Report] --> [Email Dispatcher / Dashboard]
+[HTML Audit Report] --> [Historical Reports DB]
+[Audit Result Aggregator] --> [Raw Device Snapshots]
+[AI Summary Generator (LLM API)] --> [Summary Archive]
+
+Auditor --> [HTML Audit Report] : Views Report in Browser
+
+@enduml
