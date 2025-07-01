@@ -1,1 +1,56 @@
-dsv 
+@startuml SmartSwitchCLIInterpreterBot
+
+skinparam backgroundColor #FFFFFF
+skinparam style strictuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<AI>> #FFDDCC
+  BackgroundColor<<CLI>> #DDEEFF
+  BackgroundColor<<Python>> LightYellow
+  BackgroundColor<<Chat>> #CCFFCC
+  BorderColor Black
+}
+
+actor "Network Admin" as Admin
+
+package "User Interface" {
+  component "Chat Interface\n(Web/Telegram/CLI)" <<Chat>> as ChatUI
+}
+
+package "Interpreter Bot System (Python)" {
+  rectangle "AI Bot Core\n(interpreter_bot.py)" <<Python>> as BotCore {
+    component "Natural Language Processor\n(OpenAI/NLP Model)" <<AI>> as NLP
+    component "Intent Classifier\n(Command Type)" <<AI>> as IntentClassifier
+    component "Command Generator\n(Template Engine)" as CmdGenerator
+    component "Security Checker\n(Command Validation)" as SecurityCheck
+    component "Command Executor\n(Netmiko/SSH)" <<CLI>> as Executor
+    component "Response Formatter" as ResFormatter
+  }
+}
+
+package "Smart Switch" {
+  node "Managed Switch\n(Cisco/Juniper/Aruba)" <<CLI>> as Switch
+}
+
+database "Command Log\n(JSON/DB/File)" as CmdLog
+
+' Interaction flow
+Admin --> ChatUI : Sends query (e.g., "Show VLANs")
+ChatUI --> BotCore : Forwards message
+
+BotCore --> NLP : Parse natural language
+NLP --> IntentClassifier : Classify intent (show/config/troubleshoot)
+IntentClassifier --> CmdGenerator : Build CLI command
+
+CmdGenerator --> SecurityCheck : Validate & authorize command
+SecurityCheck --> Executor : Execute via SSH
+Executor --> Switch : Send CLI command
+Switch --> Executor : Return output
+
+Executor --> ResFormatter : Format output
+ResFormatter --> ChatUI : Display response to user
+
+CmdGenerator --> CmdLog : Log command + metadata
+Executor --> CmdLog : Log result and timestamp
+
+@enduml
