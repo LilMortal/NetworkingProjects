@@ -1,1 +1,70 @@
-dsv 
+@startuml SSL_Certificate_Management_Tool
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Discovery>> #D0E8F2
+  BackgroundColor<<Validation>> #F9F1C8
+  BackgroundColor<<Renewal>> #C8E6C9
+  BackgroundColor<<Alerting>> #FADBD8
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title SSL Certificate Management Tool
+
+actor "System Administrator" as Admin
+
+package "Certificate Discovery" <<Discovery>> {
+  component "Network Scanner\n- Scan hosts for SSL certificates" as NetworkScanner
+  component "Certificate Fetcher\n- Retrieve certificates via SSL handshake" as CertFetcher
+  component "Inventory Database\n- Store discovered certificates" as InventoryDB
+}
+
+package "Certificate Validation" <<Validation>> {
+  component "Expiry Checker\n- Check certificate expiration dates" as ExpiryChecker
+  component "Revocation Checker\n- Verify CRL/OCSP status" as RevocationChecker
+  component "Policy Compliance Checker\n- Validate certificate against policies" as PolicyChecker
+}
+
+package "Certificate Renewal" <<Renewal>> {
+  component "Renewal Scheduler\n- Schedule certificate renewals" as RenewalScheduler
+  component "Automated Renewal Module\n- Interface with CA APIs" as AutoRenewal
+  component "Manual Renewal Workflow\n- Notify admin for manual action" as ManualRenewal
+}
+
+package "Alerting & Reporting" <<Alerting>> {
+  component "Alert Manager\n- Notify admins about expiring/revoked certs" as AlertManager
+  component "Report Generator\n- Generate certificate health reports" as ReportGenerator
+}
+
+package "Administration" <<Admin>> {
+  component "Dashboard\n- Visualize inventory and alerts" as Dashboard
+  component "Configuration Manager\n- Manage scan and policy settings" as ConfigManager
+}
+
+Admin --> ConfigManager : Configure scanning and validation policies
+Admin --> Dashboard : View inventory, alerts, and reports
+
+NetworkScanner --> CertFetcher : Discover and fetch certificates
+CertFetcher --> InventoryDB : Store fetched certificates
+InventoryDB --> ExpiryChecker : Provide certificates for expiry checks
+InventoryDB --> RevocationChecker : Provide certificates for revocation checks
+InventoryDB --> PolicyChecker : Provide certificates for compliance checks
+
+ExpiryChecker --> AlertManager : Alert on expiring certificates
+RevocationChecker --> AlertManager : Alert on revoked certificates
+PolicyChecker --> AlertManager : Alert on non-compliant certificates
+
+AlertManager --> Dashboard : Display alerts
+ReportGenerator --> Dashboard : Provide health reports
+AlertManager --> Admin : Send notifications
+
+ExpiryChecker --> RenewalScheduler : Notify for upcoming renewals
+RenewalScheduler --> AutoRenewal : Trigger automated renewals
+RenewalScheduler --> ManualRenewal : Notify admin for manual renewal
+
+ManualRenewal --> Admin : Request manual intervention
+AutoRenewal --> InventoryDB : Update certificates after renewal
+
+@enduml
