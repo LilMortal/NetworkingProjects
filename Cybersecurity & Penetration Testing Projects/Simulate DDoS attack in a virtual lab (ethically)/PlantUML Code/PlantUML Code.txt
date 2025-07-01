@@ -1,1 +1,67 @@
-dsv 
+@startuml Simulate_DDoS_Attack_Virtual_Lab
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Attackers>> #FADBD8
+  BackgroundColor<<Victim>> #D0E8F2
+  BackgroundColor<<Mitigation>> #F9F1C8
+  BackgroundColor<<Monitoring>> #C8E6C9
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title Simulate DDoS Attack in a Virtual Lab (Ethical Setup)
+
+actor "Lab Administrator" as Admin
+
+package "Attack Simulation" <<Attackers>> {
+  component "Botnet Simulator\n- Generates controlled traffic floods" as BotnetSimulator
+  component "Traffic Generator\n- Tools like LOIC, Hping3, or custom scripts" as TrafficGenerator
+  component "Multiple Virtual Clients\n- Simulated attacking hosts" as VirtualClients
+}
+
+package "Victim Infrastructure" <<Victim>> {
+  component "Target Server\n- Web server or application under test" as TargetServer
+  component "Firewall\n- Basic firewall rules" as Firewall
+  component "Load Balancer\n- Distributes incoming traffic" as LoadBalancer
+}
+
+package "Mitigation & Defense" <<Mitigation>> {
+  component "DDoS Mitigation Appliance\n- Rate limiting, filtering" as MitigationAppliance
+  component "Intrusion Detection System (IDS)\n- Detects anomalous traffic patterns" as IDS
+  component "Traffic Analyzer\n- Deep packet inspection and logging" as TrafficAnalyzer
+}
+
+package "Monitoring & Logging" <<Monitoring>> {
+  component "SIEM System\n- Centralized log collection and alerting" as SIEM
+  component "Dashboard\n- Real-time visualization of traffic and alerts" as Dashboard
+}
+
+package "Administration" <<Admin>> {
+  component "Admin Console\n- Configure simulation parameters and mitigation policies" as AdminConsole
+  component "Alert System\n- Notify admin on attack detection and mitigation status" as AlertSystem
+}
+
+Admin --> AdminConsole : Configure attack and defense parameters
+AdminConsole --> BotnetSimulator : Launch controlled DDoS traffic
+AdminConsole --> TrafficGenerator : Initiate traffic patterns
+BotnetSimulator --> VirtualClients : Simulate attacking hosts
+VirtualClients --> TargetServer : Flood traffic (HTTP, TCP, UDP, etc.)
+
+TargetServer --> Firewall : Incoming traffic filtered
+Firewall --> LoadBalancer : Balanced traffic forwarding
+LoadBalancer --> TargetServer : Distribute requests
+
+TrafficAnalyzer --> IDS : Analyze traffic flows
+IDS --> MitigationAppliance : Trigger defense mechanisms
+MitigationAppliance --> Firewall : Enforce rate limiting/blocking
+
+Firewall --> SIEM : Send traffic logs
+IDS --> SIEM : Send detection alerts
+MitigationAppliance --> SIEM : Send mitigation logs
+
+SIEM --> Dashboard : Visualize events and alerts
+AlertSystem --> Admin : Notify about attacks and defense status
+
+@enduml
