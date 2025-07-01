@@ -1,1 +1,55 @@
-dsv 
+@startuml DHCPConfigurationCiscoRouter
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Router>> #FFE4B5
+  BackgroundColor<<Client>> #E0F7FF
+  BackgroundColor<<Config>> #F0F0F0
+  BorderColor Black
+}
+
+title DHCP Configuration Using Cisco Router
+
+actor "Network Administrator" as Admin
+
+node "Cisco Router\n(DHCP Server)" <<Router>> as Router {
+  component "DHCP Pool Configuration\n(ip dhcp pool LAN_POOL)" <<Config>> as DHCPPool
+  component "Excluded Addresses\n(ip dhcp excluded-address 192.168.10.1 192.168.10.10)" <<Config>> as ExcludedAddr
+  component "Interface Configuration\n(interface Gig0/1)" <<Config>> as InterfaceConf
+}
+
+package "Client Network" {
+  node "Client 1\n(DHCP Client)" <<Client>> as Client1
+  node "Client 2\n(DHCP Client)" <<Client>> as Client2
+}
+
+Admin --> Router : Configure DHCP settings
+
+Admin --> ExcludedAddr : Define excluded IP addresses
+Admin --> DHCPPool : Define DHCP address pool, DNS, gateway
+Admin --> InterfaceConf : Assign interface IP, enable interface
+
+Router --> Client1 : Offer IP from pool
+Router --> Client2 : Offer IP from pool
+
+Client1 --> Router : DHCP Discover, Request
+Client2 --> Router : DHCP Discover, Request
+
+note right of DHCPPool
+Example DHCP pool configuration:
+ip dhcp excluded-address 192.168.10.1 192.168.10.10
+ip dhcp pool LAN_POOL
+ network 192.168.10.0 255.255.255.0
+ default-router 192.168.10.1
+ dns-server 8.8.8.8 8.8.4.4
+ lease 7
+end note
+
+note right of InterfaceConf
+interface GigabitEthernet0/1
+ ip address 192.168.10.1 255.255.255.0
+ no shutdown
+end note
+
+@enduml
