@@ -1,1 +1,58 @@
-dsv 
+@startuml PacketSnifferRawSockets
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Capture>> #D0E8F2
+  BackgroundColor<<Parser>> #F9F1C8
+  BackgroundColor<<Filter>> #C8E6C9
+  BackgroundColor<<Output>> #FFE4B5
+  BorderColor Black
+}
+
+title Packet Sniffer using Raw Sockets
+
+actor "User" as User
+
+package "Packet Capture Module" <<Capture>> {
+  component "Raw Socket Interface\n- Capture all incoming/outgoing packets" as RawSocket
+  component "Packet Buffer\n- Store captured packets temporarily" as PacketBuffer
+}
+
+package "Packet Parsing Module" <<Parser>> {
+  component "Packet Parser\n- Decode Ethernet/IP/TCP/UDP headers" as Parser
+}
+
+package "Filtering Module" <<Filter>> {
+  component "Filter Engine\n- Apply user-defined filters (e.g., IP, port)" as FilterEngine
+}
+
+package "Output Module" <<Output>> {
+  component "Display\n- Show packets to user in readable format" as Display
+  component "Logger\n- Save packets/logs to file" as Logger
+}
+
+User --> RawSocket : Start capture with options
+RawSocket --> PacketBuffer : Store raw packets
+PacketBuffer --> Parser : Send packets for parsing
+Parser --> FilterEngine : Forward parsed packets
+FilterEngine --> Display : Show matching packets
+FilterEngine --> Logger : Save matching packets
+
+User --> Display : View captured packets
+User --> Logger : Export logs
+
+note right of RawSocket
+Uses OS raw sockets API:
+- socket(AF_PACKET, SOCK_RAW, ETH_P_ALL) on Linux
+- Requires admin/root privileges
+end note
+
+note right of FilterEngine
+Supports:
+- Protocol filters (TCP, UDP, ICMP)
+- IP address and port filters
+- Custom user-defined expressions
+end note
+
+@enduml
