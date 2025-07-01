@@ -1,1 +1,91 @@
-dsv 
+@startuml Zero_Trust_Network_Blockchain_Auth
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<User>> #D0E8F2
+  BackgroundColor<<Device>> #FADBD8
+  BackgroundColor<<Blockchain>> #F9F1C8
+  BackgroundColor<<Auth>> #C8E6C9
+  BackgroundColor<<Policy>> #FBE4E6
+  BorderColor Black
+}
+
+title Zero-Trust Network Using Blockchain for Authentication
+
+actor "User" as User
+actor "Network Administrator" as Admin
+
+package "User Devices" <<Device>> {
+  component "Endpoint Device\n- Requests access" as EndpointDevice
+  component "Identity Agent\n- Handles identity proofs" as IdentityAgent
+}
+
+package "Blockchain Authentication Layer" <<Blockchain>> {
+  component "Distributed Ledger\n- Stores identity & access records" as Ledger
+  component "Smart Contract\n- Enforces authentication rules" as SmartContract
+  component "Consensus Mechanism\n- Validates transactions" as Consensus
+}
+
+package "Authentication & Authorization" <<Auth>> {
+  component "Access Request Processor\n- Receives and verifies access requests" as AccessProcessor
+  component "Identity Verification Module\n- Cross-checks credentials against blockchain" as IdentityVerifier
+  component "Multi-Factor Authenticator\n- Adds extra verification steps" as MFA
+}
+
+package "Policy Enforcement" <<Policy>> {
+  component "Policy Decision Point (PDP)\n- Evaluates access policies" as PDP
+  component "Policy Enforcement Point (PEP)\n- Enforces decisions on network access" as PEP
+  component "Continuous Monitoring\n- Tracks session behavior" as Monitoring
+}
+
+package "Administration & Management" <<User>> {
+  component "Admin Console\n- Manage users, policies, and blockchain nodes" as AdminConsole
+}
+
+User --> EndpointDevice : Initiate access request
+EndpointDevice --> IdentityAgent : Provide identity proof
+IdentityAgent --> AccessProcessor : Submit access request
+
+AccessProcessor --> IdentityVerifier : Verify identity on blockchain
+IdentityVerifier --> Ledger : Query identity & access logs
+Ledger --> Consensus : Validate data integrity
+Consensus --> Ledger : Confirm transaction validity
+Ledger --> SmartContract : Trigger authentication rules
+
+SmartContract --> IdentityVerifier : Return verification result
+IdentityVerifier --> MFA : Request additional verification if needed
+MFA --> AccessProcessor : Return MFA result
+
+AccessProcessor --> PDP : Request access decision
+PDP --> AdminConsole : Retrieve policy definitions
+PDP --> PEP : Send access decision
+PEP --> EndpointDevice : Grant or deny access
+
+PEP --> Monitoring : Start continuous session monitoring
+Monitoring --> PDP : Report anomalies or risk changes
+PDP --> PEP : Update access permissions dynamically
+
+Admin --> AdminConsole : Manage identities, policies, and blockchain
+
+note right of Ledger
+- Immutable storage of identity, credentials, and access logs
+- Distributed and tamper-resistant ledger
+end note
+
+note right of SmartContract
+- Automates authentication logic and policy enforcement triggers
+- Executes on blockchain network consensus
+end note
+
+note right of PDP
+- Implements Zero-Trust principle: verify every access attempt
+- Considers context, device posture, and user behavior
+end note
+
+note right of Monitoring
+- Continuously evaluates active sessions for risk
+- Supports dynamic trust adjustment and revocation
+end note
+
+@enduml
