@@ -1,1 +1,74 @@
-dsv 
+@startuml SSL_MITM_Detection_Lab
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Capture>> #D0E8F2
+  BackgroundColor<<Inspection>> #F9F1C8
+  BackgroundColor<<Detection>> #C8E6C9
+  BackgroundColor<<Alert>> #FADBD8
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title Basic SSL MITM Detection Lab
+
+actor "Network Administrator" as Admin
+
+package "Traffic Capture" <<Capture>> {
+  component "Packet Sniffer\n- Capture SSL/TLS handshake packets" as PacketSniffer
+}
+
+package "SSL Certificate Inspection" <<Inspection>> {
+  component "Certificate Extractor\n- Extract certificates from handshake" as CertExtractor
+  component "Certificate Validator\n- Validate cert chain and fingerprints" as CertValidator
+}
+
+package "MITM Detection" <<Detection>> {
+  component "Anomaly Analyzer\n- Detect certificate anomalies (self-signed, mismatches)" as AnomalyAnalyzer
+  component "Behavioral Analyzer\n- Check traffic patterns and SSL versions" as BehaviorAnalyzer
+}
+
+package "Alerting System" <<Alert>> {
+  component "Alert Manager\n- Generate alerts on MITM suspicion" as AlertManager
+  component "Log Manager\n- Store logs of suspicious events" as LogManager
+}
+
+package "Administration" <<Admin>> {
+  component "Dashboard\n- Visualize alerts and certificate info" as Dashboard
+  component "Config Manager\n- Configure detection parameters" as ConfigManager
+}
+
+Admin --> ConfigManager : Set detection rules and thresholds
+PacketSniffer --> CertExtractor : Extract certificates from traffic
+CertExtractor --> CertValidator : Validate certificates
+CertValidator --> AnomalyAnalyzer : Provide validation results
+PacketSniffer --> BehaviorAnalyzer : Provide traffic metadata
+AnomalyAnalyzer --> AlertManager : Trigger alerts on anomalies
+BehaviorAnalyzer --> AlertManager : Trigger alerts on suspicious behavior
+AlertManager --> LogManager : Log alert details
+LogManager --> Dashboard : Provide alert data visualization
+Admin --> Dashboard : Monitor alerts and logs
+
+note right of CertValidator
+Checks include:
+- Certificate chain validation
+- Fingerprint matching
+- Expiry and issuer checks
+end note
+
+note right of AnomalyAnalyzer
+Detects:
+- Self-signed certs in unexpected places
+- Certificate mismatch with known hosts
+- Unexpected certificate changes
+end note
+
+note right of BehaviorAnalyzer
+Monitors:
+- SSL version downgrades
+- Abnormal handshake patterns
+- Traffic timing irregularities
+end note
+
+@enduml
