@@ -1,1 +1,76 @@
-dsv 
+@startuml PortScanningTool_ScapyNmap
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Scanner>> #D0E8F2
+  BackgroundColor<<PacketProcessing>> #F9F1C8
+  BackgroundColor<<Analysis>> #C8E6C9
+  BackgroundColor<<Output>> #FADBD8
+  BackgroundColor<<User>> #FBE4E6
+  BorderColor Black
+}
+
+title Port Scanning Tool using Python (Scapy + Nmap)
+
+actor "User" as User
+
+package "Scanning Engine" <<Scanner>> {
+  component "Scan Manager\n- Control scan parameters (target, ports, scan type)" as ScanManager
+  component "Scheduler\n- Manage scan timing and concurrency" as Scheduler
+}
+
+package "Packet Processing" <<PacketProcessing>> {
+  component "Packet Crafter\n- Build probe packets (TCP SYN, UDP, etc.)" as PacketCrafter
+  component "Packet Sender\n- Send crafted packets to target hosts" as PacketSender
+  component "Packet Sniffer\n- Capture responses from target hosts" as PacketSniffer
+}
+
+package "Response Analysis" <<Analysis>> {
+  component "Response Parser\n- Analyze packet replies (SYN-ACK, RST, ICMP)" as ResponseParser
+  component "Port State Determiner\n- Determine port states (open, closed, filtered)" as PortStateDeterminer
+  component "Result Aggregator\n- Collect and organize scan results" as ResultAggregator
+}
+
+package "Output Module" <<Output>> {
+  component "Report Generator\n- Generate scan reports (text, JSON)" as ReportGenerator
+  component "Notification System\n- Provide user feedback and alerts" as NotificationSystem
+}
+
+User --> ScanManager : Define scan targets and parameters
+ScanManager --> Scheduler : Schedule scan jobs
+Scheduler --> PacketCrafter : Request crafted packets
+PacketCrafter --> PacketSender : Send packets
+PacketSender --> PacketSniffer : Capture incoming responses
+PacketSniffer --> ResponseParser : Forward packets for analysis
+ResponseParser --> PortStateDeterminer : Determine port states
+PortStateDeterminer --> ResultAggregator : Store port statuses
+ResultAggregator --> ReportGenerator : Generate reports
+ResultAggregator --> NotificationSystem : Notify user
+User --> ReportGenerator : Request scan reports
+User --> NotificationSystem : Receive notifications
+
+note right of PacketCrafter
+Supports TCP SYN, UDP, ACK probes
+Customizable packet headers
+end note
+
+note right of ResponseParser
+Handles TCP flags, ICMP types
+Filters out irrelevant traffic
+end note
+
+note right of PortStateDeterminer
+Classifies ports as:
+- Open
+- Closed
+- Filtered
+Based on response types
+end note
+
+note right of Scheduler
+Manages concurrency and timeout
+for efficient scanning
+end note
+
+@enduml
