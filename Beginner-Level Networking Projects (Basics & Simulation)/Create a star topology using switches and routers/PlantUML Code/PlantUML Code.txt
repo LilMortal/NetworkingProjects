@@ -1,1 +1,46 @@
-dsv 
+@startuml StarTopology
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Router>> #FFE4B5
+  BackgroundColor<<Switch>> #ADD8E6
+  BackgroundColor<<Host>> #E0F7FF
+  BorderColor Black
+}
+
+title Star Topology Network Setup
+
+actor "Network Engineer" as Engineer
+
+node "Core Switch\n(192.168.0.1)" <<Switch>> as CoreSwitch
+
+package "Edge Devices" {
+  node "Switch-1\n192.168.1.1" <<Switch>> as Switch1
+  node "Switch-2\n192.168.2.1" <<Switch>> as Switch2
+  node "Router-1\n10.0.0.1" <<Router>> as Router1
+  node "Router-2\n10.0.1.1" <<Router>> as Router2
+}
+
+package "End Devices" {
+  node "PC-1\n192.168.1.10" <<Host>> as PC1
+  node "PC-2\n192.168.1.11" <<Host>> as PC2
+  node "PC-3\n192.168.2.10" <<Host>> as PC3
+  node "PC-4\n192.168.2.11" <<Host>> as PC4
+}
+
+Engineer --> CoreSwitch : Configure core switch
+
+' Core connections to edge switches and routers
+CoreSwitch -- Switch1 : Uplink Gig0/1
+CoreSwitch -- Switch2 : Uplink Gig0/2
+CoreSwitch -- Router1 : Uplink Gig0/3
+CoreSwitch -- Router2 : Uplink Gig0/4
+
+' Edge switches connect to PCs
+Switch1 -- PC1 : Access Port
+Switch1 -- PC2 : Access Port
+Switch2 -- PC3 : Access Port
+Switch2 -- PC4 : Access Port
+
+@enduml
