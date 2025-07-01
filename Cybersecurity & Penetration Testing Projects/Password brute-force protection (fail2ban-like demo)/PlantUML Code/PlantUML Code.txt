@@ -1,1 +1,77 @@
-dsv 
+@startuml PasswordBruteForceProtection_Fail2BanDemo
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<LogMonitoring>> #D0E8F2
+  BackgroundColor<<Detection>> #F9F1C8
+  BackgroundColor<<Banning>> #C8E6C9
+  BackgroundColor<<Notification>> #FADBD8
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title Password Brute-Force Protection System (fail2ban-like Demo)
+
+actor "System Administrator" as Admin
+
+package "Log Monitoring" <<LogMonitoring>> {
+  component "Log Collector\n- Collect system and application logs" as LogCollector
+  component "Log Parser\n- Parse logs for failed login attempts" as LogParser
+}
+
+package "Attack Detection" <<Detection>> {
+  component "Failure Tracker\n- Count failed attempts per IP/user" as FailureTracker
+  component "Threshold Checker\n- Compare against configured limits" as ThresholdChecker
+}
+
+package "Banning & Mitigation" <<Banning>> {
+  component "Ban Manager\n- Add offending IPs to firewall blocklist" as BanManager
+  component "Unban Scheduler\n- Remove bans after timeout expires" as UnbanScheduler
+}
+
+package "Notification & Reporting" <<Notification>> {
+  component "Alert Dispatcher\n- Send notifications to admins" as AlertDispatcher
+  component "Report Generator\n- Generate summaries of bans and attacks" as ReportGenerator
+}
+
+package "Administration" <<Admin>> {
+  component "Config Manager\n- Configure detection thresholds and ban durations" as ConfigManager
+  component "Dashboard\n- Monitor bans, logs, and system status" as Dashboard
+}
+
+Admin --> ConfigManager : Configure system parameters
+LogCollector --> LogParser : Provide raw logs
+LogParser --> FailureTracker : Report failed login events
+FailureTracker --> ThresholdChecker : Evaluate against limits
+ThresholdChecker --> BanManager : Trigger ban if threshold exceeded
+BanManager --> AlertDispatcher : Notify admin of ban
+BanManager --> UnbanScheduler : Schedule unban task
+UnbanScheduler --> BanManager : Remove ban after timeout
+AlertDispatcher --> Admin : Send alert notifications
+BanManager --> Dashboard : Update ban status
+ReportGenerator --> Admin : Provide attack reports
+Admin --> Dashboard : Monitor overall system
+
+note right of FailureTracker
+Tracks number of failed login attempts
+per IP address or username
+within a configurable timeframe
+end note
+
+note right of ThresholdChecker
+Checks if failed attempts exceed
+threshold to trigger banning
+end note
+
+note right of BanManager
+Interfaces with firewall (iptables, etc.)
+to block offending IP addresses
+end note
+
+note right of UnbanScheduler
+Automates ban removal after
+configured ban duration expires
+end note
+
+@enduml
