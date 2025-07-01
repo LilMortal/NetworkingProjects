@@ -1,1 +1,40 @@
-dsv 
+@startuml RingTopologySimulation
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Router>> #E0F7FF
+  BackgroundColor<<Switch>> #CCEEFF
+  BorderColor Black
+}
+
+title Ring Topology Simulation Setup
+
+actor "Network Engineer" as Engineer
+
+package "Ring Topology Network" {
+  
+  node "Switch-1\n(192.168.10.1)" <<Switch>> as S1
+  node "Switch-2\n(192.168.10.2)" <<Switch>> as S2
+  node "Switch-3\n(192.168.10.3)" <<Switch>> as S3
+  node "Switch-4\n(192.168.10.4)" <<Switch>> as S4
+  node "Switch-5\n(192.168.10.5)" <<Switch>> as S5
+
+}
+
+Engineer --> S1 : Configure interface
+Engineer --> S2 : Configure interface
+Engineer --> S3 : Configure interface
+Engineer --> S4 : Configure interface
+Engineer --> S5 : Configure interface
+
+' Ring connections (full loop)
+S1 -- S2 : Link Gig0/1
+S2 -- S3 : Link Gig0/1
+S3 -- S4 : Link Gig0/1
+S4 -- S5 : Link Gig0/1
+S5 -- S1 : Link Gig0/1
+
+note left: Each switch is connected \n to two neighbors \n forming a ring topology.
+
+@enduml
