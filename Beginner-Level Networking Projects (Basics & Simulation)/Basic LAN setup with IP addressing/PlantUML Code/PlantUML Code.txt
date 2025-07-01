@@ -1,1 +1,56 @@
-dsv 
+@startuml BasicLANSetup
+
+skinparam backgroundColor #FFFFFF
+skinparam style strictuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Device>> #F0F8FF
+  BackgroundColor<<Router>> #FFEFD5
+  BackgroundColor<<Switch>> #E0FFFF
+  BackgroundColor<<Server>> #F5F5DC
+  BorderColor Black
+}
+
+title Basic LAN Setup with IP Addressing
+
+actor "Network Admin" as Admin
+
+package "LAN: 192.168.1.0/24" {
+  
+  node "Router\n(Gateway: 192.168.1.1)" <<Router>> as R1
+
+  node "Switch" <<Switch>> as SW1 {
+    rectangle "PC-1\n192.168.1.10\nMAC: AA:BB:CC:01" <<Device>> as PC1
+    rectangle "PC-2\n192.168.1.11\nMAC: AA:BB:CC:02" <<Device>> as PC2
+    rectangle "PC-3\n192.168.1.12\nMAC: AA:BB:CC:03" <<Device>> as PC3
+  }
+
+  node "DHCP Server\n192.168.1.100" <<Server>> as DHCP
+  node "DNS Server\n192.168.1.101" <<Server>> as DNS
+
+}
+
+' Connections
+Admin --> PC1 : Configure DHCP/Static IP
+
+PC1 --> SW1
+PC2 --> SW1
+PC3 --> SW1
+
+SW1 --> R1 : Uplink (Trunk or Access)
+
+R1 --> DHCP : DHCP Requests (UDP 67/68)
+R1 --> DNS : DNS Queries (UDP 53)
+
+PC1 --> DHCP : Request IP
+PC2 --> DHCP : Request IP
+PC3 --> DHCP : Request IP
+
+note right of DHCP
+IP Pool: 192.168.1.10–192.168.1.200
+Lease Time: 24h
+Default Gateway: 192.168.1.1
+DNS Server: 192.168.1.101
+end note
+
+@enduml
