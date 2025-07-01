@@ -1,1 +1,61 @@
-dsv 
+@startuml SSH_Hardening_Router
+
+title SSH Hardening on Router
+
+skinparam rectangle {
+  BackgroundColor #E8F0FE
+  BorderColor #1E90FF
+  RoundCorner 6
+}
+skinparam node {
+  BackgroundColor #FFFFFF
+  BorderColor #4682B4
+}
+
+node "Router" as Router
+
+rectangle "1. Disable Telnet\n- no transport input telnet" as DisableTelnet
+rectangle "2. Enable SSH\n- ip domain-name example.com\n- crypto key generate rsa\n- ip ssh version 2" as EnableSSH
+rectangle "3. Configure User Authentication\n- username admin secret strongPassword" as UserAuth
+rectangle "4. Restrict Access\n- access-class SSH_ACCESS in vty 0 4\n- Define ACL to allow trusted IPs only" as RestrictAccess
+rectangle "5. Set SSH Timeouts\n- ip ssh time-out 60\n- ip ssh authentication-retries 2" as SSHTimeout
+rectangle "6. Enable Logging\n- logging buffered 51200\n- logging trap warnings\n- archive log config" as EnableLogging
+rectangle "7. Use Strong Ciphers\n- ip ssh cipher aes256-ctr aes192-ctr aes128-ctr" as StrongCiphers
+
+Router --> DisableTelnet
+Router --> EnableSSH
+Router --> UserAuth
+Router --> RestrictAccess
+Router --> SSHTimeout
+Router --> EnableLogging
+Router --> StrongCiphers
+
+note right of DisableTelnet
+Disables insecure Telnet protocol to force SSH usage.
+end note
+
+note right of EnableSSH
+Generates RSA keys and forces SSH v2 for security.
+end note
+
+note right of UserAuth
+Uses local username/password with strong secret.
+end note
+
+note right of RestrictAccess
+Limits SSH access to specific management IPs.
+end note
+
+note right of SSHTimeout
+Limits connection time and retry attempts.
+end note
+
+note right of EnableLogging
+Keeps audit trails for SSH sessions.
+end note
+
+note right of StrongCiphers
+Enforces modern, secure encryption algorithms.
+end note
+
+@enduml
