@@ -1,1 +1,79 @@
-dsv 
+@startuml Network_Topology_Generation_NL
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<User>> #D0E8F2
+  BackgroundColor<<NLP>> #FADBD8
+  BackgroundColor<<Processor>> #F9F1C8
+  BackgroundColor<<Generator>> #C8E6C9
+  BackgroundColor<<Visualization>> #FBE4E6
+  BorderColor Black
+}
+
+title Network Topology Generation from Natural Language
+
+actor "Network Engineer" as User
+
+package "Natural Language Processing (NLP)" <<NLP>> {
+  component "Input Interface\n- Accepts user text input" as InputInterface
+  component "Text Preprocessing\n- Tokenization, normalization" as TextPreproc
+  component "Entity & Relation Extraction\n- Identify devices, links, protocols" as EntityRelExtract
+  component "Intent Detection\n- Understand user goals" as IntentDetect
+}
+
+package "Topology Processing & Generation" <<Processor>> {
+  component "Semantic Analyzer\n- Interpret network semantics" as SemanticAnalyzer
+  component "Topology Builder\n- Constructs graph model" as TopologyBuilder
+  component "Validation Module\n- Checks topology correctness" as ValidationModule
+}
+
+package "Network Topology Generator" <<Generator>> {
+  component "Graph Generator\n- Generates visual graph data" as GraphGenerator
+  component "Export Module\n- Outputs topology files (e.g., JSON, XML)" as ExportModule
+}
+
+package "Visualization & Feedback" <<Visualization>> {
+  component "Topology Renderer\n- Displays network graph visually" as TopologyRenderer
+  component "User Feedback Interface\n- Allows corrections and refinements" as FeedbackInterface
+}
+
+User --> InputInterface : Enter network description (NL)
+InputInterface --> TextPreproc : Prepare text
+TextPreproc --> EntityRelExtract : Extract devices & links
+EntityRelExtract --> IntentDetect : Determine user intent
+IntentDetect --> SemanticAnalyzer : Provide semantic context
+
+SemanticAnalyzer --> TopologyBuilder : Build network model
+TopologyBuilder --> ValidationModule : Validate topology
+ValidationModule --> TopologyBuilder : Feedback on errors or warnings
+
+TopologyBuilder --> GraphGenerator : Generate graph data
+GraphGenerator --> TopologyRenderer : Visualize network topology
+GraphGenerator --> ExportModule : Export network topology files
+
+TopologyRenderer --> FeedbackInterface : Display to user
+FeedbackInterface --> User : Accept feedback and corrections
+FeedbackInterface --> TopologyBuilder : Send corrections for update
+
+note right of EntityRelExtract
+- Uses NLP techniques like Named Entity Recognition (NER)
+- Detects devices (routers, switches), connections, IPs, VLANs
+end note
+
+note right of SemanticAnalyzer
+- Resolves ambiguities and contextual meanings
+- Maps text to network domain concepts
+end note
+
+note right of ValidationModule
+- Checks for loops, unreachable devices, missing parameters
+- Ensures network design feasibility
+end note
+
+note right of FeedbackInterface
+- Supports iterative refinement through user input
+- Improves model accuracy over time
+end note
+
+@enduml
