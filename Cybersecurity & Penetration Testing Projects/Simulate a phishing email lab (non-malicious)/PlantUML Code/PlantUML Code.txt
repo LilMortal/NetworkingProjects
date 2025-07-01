@@ -1,1 +1,80 @@
-dsv 
+@startuml Simulate_Phishing_Email_Lab
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Simulator>> #D0E8F2
+  BackgroundColor<<EmailSystem>> #F9F1C8
+  BackgroundColor<<Users>> #C8E6C9
+  BackgroundColor<<Monitoring>> #FADBD8
+  BackgroundColor<<Administration>> #FBE4E6
+  BorderColor Black
+}
+
+title Simulate a Phishing Email Lab (Non-malicious)
+
+actor "Security Team / Admin" as Admin
+actor "Employee/User" as User
+
+package "Phishing Simulator" <<Simulator>> {
+  component "Phishing Email Generator\n- Crafts simulated phishing emails" as EmailGenerator
+  component "Email Campaign Manager\n- Schedules and sends phishing tests" as CampaignManager
+}
+
+package "Email Infrastructure" <<EmailSystem>> {
+  component "SMTP Server\n- Sends phishing emails" as SMTPServer
+  component "Email Gateway\n- Applies standard email filtering" as EmailGateway
+  component "Mailbox Server\n- Receives emails for users" as MailboxServer
+}
+
+package "User Environment" <<Users>> {
+  component "Employee Mailbox\n- Receives phishing emails" as EmployeeMailbox
+  component "User Interaction\n- Clicks links or reports phishing" as UserInteraction
+}
+
+package "Monitoring & Reporting" <<Monitoring>> {
+  component "Phishing Response Tracker\n- Tracks user actions" as ResponseTracker
+  component "Alert & Reporting System\n- Notifies admin of results" as AlertReporting
+}
+
+package "Administration" <<Administration>> {
+  component "Admin Dashboard\n- Configure campaigns and view reports" as AdminDashboard
+}
+
+Admin --> AdminDashboard : Configure phishing campaigns
+AdminDashboard --> EmailGenerator : Define email templates
+AdminDashboard --> CampaignManager : Schedule campaigns
+CampaignManager --> SMTPServer : Send phishing emails
+SMTPServer --> EmailGateway : Route emails through filters
+EmailGateway --> EmployeeMailbox : Deliver emails
+
+User --> EmployeeMailbox : Receives emails
+User --> UserInteraction : Interacts with email (click, report, ignore)
+
+UserInteraction --> ResponseTracker : Log user responses
+ResponseTracker --> AlertReporting : Generate reports and alerts
+AlertReporting --> AdminDashboard : Provide campaign results
+AdminDashboard --> Admin : Review user susceptibility and awareness
+
+note right of EmailGenerator
+- Creates realistic but harmless phishing content
+- Includes tracking links for user actions
+end note
+
+note right of UserInteraction
+- User can click phishing link (simulated)
+- User can report phishing email
+- User can ignore email
+end note
+
+note right of ResponseTracker
+- Monitors clicks, reports, and ignores
+- Measures user awareness level
+end note
+
+note right of AlertReporting
+- Sends summary reports to admin
+- Highlights high-risk users
+end note
+
+@enduml
