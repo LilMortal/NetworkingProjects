@@ -1,1 +1,49 @@
-dsv 
+@startuml SimpleFTPServerLinux
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Server>> #FFF8DC
+  BackgroundColor<<Config>> #F0F0F0
+  BackgroundColor<<Client>> #E0F7FF
+  BorderColor Black
+}
+
+title Simple FTP Server Setup on Linux
+
+actor "System Administrator" as Admin
+actor "FTP Client" as Client
+
+node "Linux FTP Server\n(IP: 192.168.1.100)" <<Server>> as FTPServer {
+  component "FTP Daemon\n(vsftpd)" as FTPDaemon
+  component "Configuration File\n/etc/vsftpd.conf" <<Config>> as FTPConfig
+  component "FTP Root Directory\n/var/ftp" as FTPRoot
+  component "User Accounts\n(system or virtual users)" as Users
+  component "Firewall (iptables/ufw)" as Firewall
+}
+
+Client --> FTPServer : Connect via FTP (port 21)
+FTPServer --> FTPDaemon : Accept connection
+Admin --> FTPConfig : Edit configuration (anonymous access, local users, chroot)
+Admin --> Users : Manage FTP users & permissions
+FTPDaemon --> FTPRoot : Serve files (upload/download)
+Admin --> Firewall : Open port 21 TCP, configure passive ports
+
+note right of FTPConfig
+Key parameters:
+- anonymous_enable=NO
+- local_enable=YES
+- write_enable=YES
+- chroot_local_user=YES
+- pasv_enable=YES
+- pasv_min_port=40000
+- pasv_max_port=50000
+end note
+
+note left of Firewall
+Example firewall rules:
+- allow tcp/21
+- allow tcp/40000-50000 (passive FTP)
+end note
+
+@enduml
