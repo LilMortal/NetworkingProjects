@@ -1,1 +1,53 @@
-dsv 
+@startuml NetworkAutomationNetmiko
+
+skinparam backgroundColor #FFFFFF
+skinparam style strictuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Python>> LightYellow
+  BackgroundColor<<Netmiko>> #FFEEAA
+  BackgroundColor<<Device>> #DDEEFF
+  BorderColor Black
+}
+
+actor Operator as User
+
+package "Automation System" {
+  rectangle "Python Script\n(main.py)" <<Python>> as Script {
+    component "Device Inventory\n(YAML/CSV/JSON)" as Inventory
+    component "Automation Logic" as Logic
+    component "Logging Module" as Logger
+    component "Report Generator" as Reporter
+  }
+
+  rectangle "Netmiko Library" <<Netmiko>> {
+    component "ConnectHandler"
+    component "send_command"
+    component "send_config_set"
+    component "disconnect"
+  }
+}
+
+package "Network Devices" {
+  node "Cisco Router" <<Device>> as Router
+  node "Cisco Switch" <<Device>> as Switch
+}
+
+User --> Script : Initiates script execution
+Script --> Inventory : Load device list & credentials
+Script --> Logic : Parse inventory and loop through devices
+
+Logic --> ConnectHandler : Establish SSH connection
+ConnectHandler --> Router : SSH login
+ConnectHandler --> Switch : SSH login
+
+Logic --> send_command : Collect device information
+Logic --> send_config_set : Push configuration
+Logic --> disconnect : Close connection
+
+Logic --> Logger : Save logs (success/failure)
+Logic --> Reporter : Generate summary report
+
+Reporter --> User : Display/Email Report
+
+@enduml
