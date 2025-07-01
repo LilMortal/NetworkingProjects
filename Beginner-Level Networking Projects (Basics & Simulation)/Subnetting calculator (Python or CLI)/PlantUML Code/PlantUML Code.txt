@@ -1,1 +1,42 @@
-dsv 
+@startuml SubnettingCalculator
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Input>> #D0E8F2
+  BackgroundColor<<Processor>> #F9F1C8
+  BackgroundColor<<Output>> #C8E6C9
+  BorderColor Black
+}
+
+title Subnetting Calculator (Python/CLI)
+
+actor "User" as User
+
+package "Input Module" <<Input>> {
+  component "IP Address Input\n- Validate format\n- Accept CIDR or subnet mask" as InputIP
+  component "Number of Subnets/Hosts Input\n- Accept user requirement" as InputReq
+}
+
+package "Processing Module" <<Processor>> {
+  component "Subnet Calculator\n- Calculate subnet mask\n- Calculate network addresses\n- Calculate broadcast addresses\n- Calculate host ranges" as SubnetCalc
+  component "Validation\n- Validate inputs\n- Check address ranges" as Validation
+}
+
+package "Output Module" <<Output>> {
+  component "Display Results\n- Show subnet details\n- Show usable host ranges\n- Show total subnets and hosts" as OutputDisplay
+  component "Export Options\n- Save to file\n- Print summary" as Export
+}
+
+User --> InputIP : Enter IP/CIDR
+User --> InputReq : Enter subnetting requirement
+
+InputIP --> Validation : Validate IP format
+InputReq --> Validation : Validate requirements
+
+Validation --> SubnetCalc : Validated input data
+
+SubnetCalc --> OutputDisplay : Subnetting results
+OutputDisplay --> Export : Export options
+
+@enduml
