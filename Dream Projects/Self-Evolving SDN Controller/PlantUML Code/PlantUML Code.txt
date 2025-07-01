@@ -1,1 +1,87 @@
-dsv 
+@startuml Self_Evolving_SDN_Controller
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Network>> #D0E8F2
+  BackgroundColor<<Controller>> #FADBD8
+  BackgroundColor<<ML>> #F9F1C8
+  BackgroundColor<<Monitoring>> #C8E6C9
+  BackgroundColor<<Management>> #FBE4E6
+  BorderColor Black
+}
+
+title Self-Evolving SDN Controller Architecture
+
+actor "Network Administrator" as Admin
+
+package "Network Infrastructure" <<Network>> {
+  component "SDN Switches / Devices\n- Forward data plane traffic" as SDNSwitches
+  component "Southbound APIs\n(OpenFlow, NetConf)" as SouthboundAPI
+}
+
+package "SDN Controller Core" <<Controller>> {
+  component "Topology Manager\n- Maintains network topology" as TopologyManager
+  component "Flow Manager\n- Controls flow rules" as FlowManager
+  component "Policy Engine\n- Enforces network policies" as PolicyEngine
+  component "Northbound API\n- Interface for apps & admins" as NorthboundAPI
+}
+
+package "Machine Learning Module" <<ML>> {
+  component "Data Collector\n- Gathers network telemetry & events" as DataCollector
+  component "Behavior Analyzer\n- Detects anomalies and patterns" as BehaviorAnalyzer
+  component "Evolution Engine\n- Suggests controller adaptations" as EvolutionEngine
+  component "Reinforcement Learner\n- Optimizes policies over time" as ReinforcementLearner
+}
+
+package "Monitoring & Feedback" <<Monitoring>> {
+  component "Network Monitor\n- Tracks performance and faults" as NetworkMonitor
+  component "Alert System\n- Notifies on issues or changes" as AlertSystem
+}
+
+package "Management & Orchestration" <<Management>> {
+  component "Admin Console\n- UI for management and oversight" as AdminConsole
+  component "Policy Manager\n- Creates and updates policies" as PolicyManager
+  component "Deployment Engine\n- Applies evolved configurations" as DeploymentEngine
+}
+
+Admin --> AdminConsole : Configure and monitor network
+AdminConsole --> PolicyManager : Define policies
+PolicyManager --> PolicyEngine : Update enforcement rules
+AdminConsole --> DeploymentEngine : Trigger config deployments
+
+SDNSwitches --> SouthboundAPI : Report status & accept flow rules
+SouthboundAPI --> SDNControllerCore : Interface for device communication
+
+SouthboundAPI --> TopologyManager : Update topology info
+TopologyManager --> FlowManager : Provide network context
+FlowManager --> SDNSwitches : Install / remove flow entries
+
+DataCollector --> NetworkMonitor : Provide telemetry data
+NetworkMonitor --> AlertSystem : Send alerts on faults/anomalies
+DataCollector --> BehaviorAnalyzer : Feed network data for analysis
+BehaviorAnalyzer --> EvolutionEngine : Provide behavior insights
+EvolutionEngine --> ReinforcementLearner : Collaborate for policy optimization
+ReinforcementLearner --> PolicyManager : Suggest policy improvements
+
+EvolutionEngine --> DeploymentEngine : Propose updated configurations
+DeploymentEngine --> FlowManager : Apply evolved flow rules
+
+AdminConsole --> NetworkMonitor : View network status & alerts
+
+note right of EvolutionEngine
+- Uses AI to adapt controller logic dynamically
+- Learns from network behavior and feedback
+end note
+
+note right of ReinforcementLearner
+- Uses RL to optimize policies for performance and security
+- Continuously improves via trial and error
+end note
+
+note right of PolicyEngine
+- Implements policies from admin and ML suggestions
+- Enforces QoS, security, and traffic engineering
+end note
+
+@enduml
