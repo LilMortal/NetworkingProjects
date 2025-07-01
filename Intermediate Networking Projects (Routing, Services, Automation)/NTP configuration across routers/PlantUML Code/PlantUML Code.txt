@@ -1,1 +1,69 @@
-dsv 
+@startuml NTP_Configuration_Lab
+
+title NTP Configuration Across Routers
+
+skinparam node {
+  BackgroundColor #E0F7FA
+  BorderColor #006064
+}
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #004D40
+}
+
+' Define NTP Server
+node "NTP Server\nIP: 192.168.100.10" as NTP_Server
+
+' Define Routers
+node "Router R1\nIP: 192.168.1.1" as R1
+node "Router R2\nIP: 192.168.2.1" as R2
+node "Router R3\nIP: 192.168.3.1" as R3
+
+' Define LANs
+rectangle "LAN 1\n192.168.1.0/24" as LAN1
+rectangle "LAN 2\n192.168.2.0/24" as LAN2
+rectangle "LAN 3\n192.168.3.0/24" as LAN3
+
+' Connections
+LAN1 --> R1 : Fa0/0
+LAN2 --> R2 : Fa0/0
+LAN3 --> R3 : Fa0/0
+
+' Routers connected to NTP Server (assume routed network)
+R1 --> NTP_Server : UDP 123 (NTP)
+R2 --> NTP_Server : UDP 123 (NTP)
+R3 --> NTP_Server : UDP 123 (NTP)
+
+' Optionally routers connected in chain (for NTP fallback)
+R1 --> R2 : UDP 123 (NTP)
+R2 --> R3 : UDP 123 (NTP)
+
+' Notes on configuration
+note right of R1
+Cisco IOS NTP client config:
+----------------------------
+ntp server 192.168.100.10
+ntp update-calendar
+end note
+
+note left of R2
+Cisco IOS NTP client config:
+----------------------------
+ntp server 192.168.100.10
+ntp server 192.168.1.1 prefer
+end note
+
+note right of R3
+Cisco IOS NTP client config:
+----------------------------
+ntp server 192.168.100.10
+ntp server 192.168.2.1
+end note
+
+note bottom of NTP_Server
+- Acts as primary time source
+- Can sync to public NTP servers or GPS
+- Runs NTP daemon (ntpd) or Chrony on Linux
+end note
+
+@enduml
