@@ -1,1 +1,91 @@
-dsv 
+@startuml Secure_SSH_Bastion_Setup
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Users>> #D0E8F2
+  BackgroundColor<<Bastion>> #F9F1C8
+  BackgroundColor<<TargetServers>> #C8E6C9
+  BackgroundColor<<Security>> #FADBD8
+  BackgroundColor<<Administration>> #FBE4E6
+  BorderColor Black
+}
+
+title Secure SSH Bastion Setup Project
+
+actor "Remote User" as User
+actor "System Administrator" as Admin
+
+package "User Access" <<Users>> {
+  component "SSH Client\n- User initiates SSH sessions" as SSHClient
+  component "MFA Device\n- Provides second factor authentication" as MFADevice
+}
+
+package "Bastion Host" <<Bastion>> {
+  component "SSH Bastion Server\n- Centralized SSH gateway" as BastionServer
+  component "Authentication Module\n- Password + MFA verification" as AuthModule
+  component "Access Control\n- Role-based SSH access policies" as AccessControl
+  component "Session Logging\n- Records all SSH sessions" as SessionLogging
+  component "Audit & Monitoring\n- Real-time monitoring and alerting" as AuditMonitoring
+}
+
+package "Target Servers" <<TargetServers>> {
+  component "Production Servers\n- SSH access controlled via bastion" as ProdServers
+  component "Database Servers\n- Restricted SSH access" as DBServers
+}
+
+package "Security Services" <<Security>> {
+  component "Firewall\n- Limits SSH access to bastion only" as Firewall
+  component "VPN Gateway\n- Optional secure network access" as VPNGateway
+}
+
+package "Administration" <<Administration>> {
+  component "Admin Console\n- Manage users, policies, and logs" as AdminConsole
+  component "SIEM System\n- Collects logs and alerts for analysis" as SIEM
+}
+
+User --> SSHClient : Initiate SSH session
+SSHClient --> MFADevice : Request MFA token
+MFADevice --> SSHClient : Provide MFA token
+SSHClient --> BastionServer : Connect with credentials + MFA
+BastionServer --> AuthModule : Verify credentials and MFA
+AuthModule --> AccessControl : Check access permissions
+AccessControl --> BastionServer : Grant or deny access
+BastionServer --> SessionLogging : Record session data
+BastionServer --> ProdServers : Proxy SSH connections
+BastionServer --> DBServers : Proxy SSH connections
+
+Firewall --> BastionServer : Allow SSH inbound only
+VPNGateway --> SSHClient : Provide secure access (optional)
+BastionServer --> AuditMonitoring : Real-time session monitoring
+AuditMonitoring --> AdminConsole : Alert admin on suspicious activity
+SessionLogging --> AdminConsole : Provide session records
+AdminConsole --> SIEM : Forward logs and alerts
+Admin --> AdminConsole : Manage users, policies, view logs
+
+note right of AuthModule
+- Supports password and MFA (TOTP, hardware tokens)
+- Prevents unauthorized access
+end note
+
+note right of AccessControl
+- Implements role-based SSH access
+- Restricts which servers users can reach
+end note
+
+note right of SessionLogging
+- Logs commands and session metadata
+- Enables forensic analysis
+end note
+
+note right of AuditMonitoring
+- Detects suspicious patterns
+- Sends real-time alerts
+end note
+
+note right of Firewall
+- Blocks direct SSH to servers
+- Allows SSH only via bastion host
+end note
+
+@enduml
