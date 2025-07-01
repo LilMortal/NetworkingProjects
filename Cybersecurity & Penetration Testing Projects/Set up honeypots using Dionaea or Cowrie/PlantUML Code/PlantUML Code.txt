@@ -1,1 +1,74 @@
-dsv 
+@startuml Honeypot_Setup_Dionaea_Cowrie
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Honeypots>> #D0E8F2
+  BackgroundColor<<DataCollection>> #F9F1C8
+  BackgroundColor<<Alerting>> #FADBD8
+  BackgroundColor<<Administration>> #C8E6E6
+  BackgroundColor<<External>> #C8E6C9
+  BorderColor Black
+}
+
+title Honeypot Setup using Dionaea and Cowrie
+
+actor "Network Admin" as Admin
+actor "Attacker" as Attacker
+
+package "Honeypot Systems" <<Honeypots>> {
+  component "Dionaea Honeypot\n- Emulates SMB, FTP, HTTP services\n- Captures malware samples" as Dionaea
+  component "Cowrie Honeypot\n- SSH and Telnet honeypot\n- Logs attacker commands and activities" as Cowrie
+}
+
+package "Data Collection & Storage" <<DataCollection>> {
+  component "Log Aggregator\n- Collects logs from honeypots" as LogAggregator
+  component "Malware Repository\n- Stores captured malware samples" as MalwareRepo
+  component "Database\n- Stores attack metadata and session logs" as Database
+}
+
+package "Alerting & Monitoring" <<Alerting>> {
+  component "Alert System\n- Sends real-time alerts on suspicious activity" as AlertSystem
+  component "Dashboard\n- Visualizes honeypot activity and alerts" as Dashboard
+}
+
+package "Administration" <<Administration>> {
+  component "Admin Console\n- Configure honeypots and view reports" as AdminConsole
+}
+
+package "External Network" <<External>> {
+  component "Internet\n- Source of attacker traffic" as Internet
+}
+
+Internet --> Dionaea : Attack traffic (SMB, FTP, HTTP, etc.)
+Internet --> Cowrie : SSH and Telnet connection attempts
+
+Dionaea --> LogAggregator : Send logs and malware samples
+Cowrie --> LogAggregator : Send logs and session data
+
+LogAggregator --> Database : Store aggregated data
+LogAggregator --> MalwareRepo : Save captured malware
+
+LogAggregator --> AlertSystem : Trigger alerts on anomalies
+AlertSystem --> Dashboard : Display alerts and activity
+Admin --> AdminConsole : Configure honeypots and policies
+AdminConsole --> Dionaea : Deploy config changes
+AdminConsole --> Cowrie : Deploy config changes
+AdminConsole --> Dashboard : Access reports and status
+
+note right of Dionaea
+- Emulates multiple protocols to lure attackers
+- Captures malware samples for analysis
+end note
+
+note right of Cowrie
+- Simulates SSH/Telnet for attacker interaction
+- Records attacker commands for forensics
+end note
+
+note right of AlertSystem
+- Real-time detection of suspicious activity
+- Sends email/SMS alerts to admin
+end note
+
+@enduml
