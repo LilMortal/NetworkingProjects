@@ -1,1 +1,62 @@
-dsv 
+@startuml BandwidthPredictionML
+
+skinparam backgroundColor #FFFFFF
+skinparam style strictuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Python>> LightYellow
+  BackgroundColor<<ML>> #FFEECC
+  BackgroundColor<<Network>> #DDEEFF
+  BackgroundColor<<Storage>> #F0F8FF
+  BorderColor Black
+}
+
+actor "Network Engineer" as Engineer
+
+package "Network Infrastructure" {
+  node "Router/Switch\n(SNMP/NetFlow)" <<Network>> as Device
+}
+
+package "Data Pipeline" {
+  component "Data Collector\n(Python SNMP/NetFlow)" <<Python>> as Collector
+  component "Data Preprocessor\n(Pandas/Numpy)" <<Python>> as Preprocessor
+  database "Time-Series DB\n(InfluxDB/CSV)" <<Storage>> as TimeDB
+}
+
+package "ML Engine" {
+  rectangle "Training Script\n(train_model.py)" <<ML>> as Trainer {
+    component "Feature Engineering"
+    component "Model Training\n(Sklearn/XGBoost/LSTM)"
+    component "Model Validation"
+  }
+
+  component "Trained Model\n(model.pkl)" <<ML>> as TrainedModel
+  component "Prediction Engine\n(predict.py)" <<ML>> as Predictor
+}
+
+package "Output & Feedback" {
+  component "Dashboard\n(Grafana/Streamlit)" as Dashboard
+  component "Alert System\n(Email/Telegram)" as Alerts
+}
+
+' Data collection flow
+Device --> Collector : Export SNMP/NetFlow stats
+Collector --> TimeDB : Store raw usage data
+Collector --> Preprocessor : Normalize, clean, resample
+Preprocessor --> TimeDB : Save processed data
+
+' Model training flow
+Engineer --> Trainer : Initiates training
+TimeDB --> Trainer : Load historical data
+Trainer --> TrainedModel : Save trained model
+
+' Prediction flow
+Predictor --> TimeDB : Load recent data
+Predictor --> TrainedModel : Load model
+Predictor --> Dashboard : Show prediction (next N mins/hours)
+Predictor --> Alerts : Send alerts if threshold exceeded
+
+Engineer --> Dashboard : View live & forecasted bandwidth
+Alerts --> Engineer : Notify over-limit usage
+
+@enduml
