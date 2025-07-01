@@ -1,1 +1,71 @@
-dsv 
+@startuml StaticRoutingTwoRouters
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Router>> #FFE4B5
+  BackgroundColor<<LAN>> #E0F7FF
+  BorderColor Black
+}
+
+title Static Routing Between Two Routers (Packet Tracer)
+
+actor "Network Administrator" as Admin
+
+node "Router 1\n(R1)" <<Router>> as R1 {
+  component "LAN 192.168.1.0/24\nInterface: Gig0/0" as LAN1
+  component "Serial Interface\nSerial0/0/0\nIP: 10.1.1.1/30" as Serial1
+  component "Static Route\nip route 192.168.2.0 255.255.255.0 10.1.1.2" as StaticRoute1
+}
+
+node "Router 2\n(R2)" <<Router>> as R2 {
+  component "LAN 192.168.2.0/24\nInterface: Gig0/0" as LAN2
+  component "Serial Interface\nSerial0/0/0\nIP: 10.1.1.2/30" as Serial2
+  component "Static Route\nip route 192.168.1.0 255.255.255.0 10.1.1.1" as StaticRoute2
+}
+
+package "LAN 1 Network" <<LAN>> {
+  node "PC-A\nIP: 192.168.1.10" as PC_A
+}
+
+package "LAN 2 Network" <<LAN>> {
+  node "PC-B\nIP: 192.168.2.10" as PC_B
+}
+
+Admin --> R1 : Configure interfaces and static route
+Admin --> R2 : Configure interfaces and static route
+
+PC_A --> R1 : Connect via Gig0/0
+R1 --> R2 : Connect via Serial0/0/0
+R2 --> PC_B : Connect via Gig0/0
+
+R1 --> R2 : Static route for 192.168.2.0/24
+R2 --> R1 : Static route for 192.168.1.0/24
+
+note right of R1
+Interface Gig0/0
+ ip address 192.168.1.1 255.255.255.0
+ no shutdown
+
+Interface Serial0/0/0
+ ip address 10.1.1.1 255.255.255.252
+ no shutdown
+
+Static route:
+ip route 192.168.2.0 255.255.255.0 10.1.1.2
+end note
+
+note left of R2
+Interface Gig0/0
+ ip address 192.168.2.1 255.255.255.0
+ no shutdown
+
+Interface Serial0/0/0
+ ip address 10.1.1.2 255.255.255.252
+ no shutdown
+
+Static route:
+ip route 192.168.1.0 255.255.255.0 10.1.1.1
+end note
+
+@enduml
