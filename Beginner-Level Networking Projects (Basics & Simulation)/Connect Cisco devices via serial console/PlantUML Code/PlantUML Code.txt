@@ -1,1 +1,46 @@
-dsv 
+@startuml CiscoSerialConsoleConnection
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<CiscoDevice>> #E0F7FF
+  BackgroundColor<<Terminal>> #FFF5CC
+  BackgroundColor<<Cable>> #D0D0D0
+  BorderColor Black
+}
+
+title Connecting Cisco Devices via Serial Console
+
+actor "Network Engineer" as Engineer
+
+node "Cisco Device\nRouter/Switch" <<CiscoDevice>> as CiscoDevice {
+  component "Console Port\nRJ-45 or USB" as ConsolePort
+}
+
+node "Terminal Server / PC" <<Terminal>> as Terminal {
+  component "Terminal Emulator\n(e.g., PuTTY, Tera Term)" as TerminalEmulator
+  component "Serial Interface\n(COM port or USB-Serial adapter)" as SerialInterface
+}
+
+component "Console Cable\n(RJ-45 to DB-9 or USB)" <<Cable>> as ConsoleCable
+
+Engineer --> TerminalEmulator : Open serial session
+Engineer --> SerialInterface : Connect via serial port
+
+TerminalEmulator --> SerialInterface : Send/receive data
+SerialInterface --> ConsoleCable : Physical connection
+ConsoleCable --> ConsolePort : Connects to Cisco device console port
+
+CiscoDevice --> ConsolePort : Receives serial data
+CiscoDevice --> Engineer : CLI interaction via console
+
+note right of ConsoleCable
+Typical settings:
+- Baud rate: 9600
+- Data bits: 8
+- Parity: None
+- Stop bits: 1
+- Flow control: None
+end note
+
+@enduml
