@@ -1,1 +1,53 @@
-dsv 
+@startuml AI_Device_Identification
+
+skinparam backgroundColor #FFFFFF
+skinparam style strictuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<AI>> #FFEEE0
+  BackgroundColor<<Python>> #FFF5CC
+  BackgroundColor<<Image>> #E0F7FF
+  BackgroundColor<<Output>> #CCFFCC
+  BorderColor Black
+}
+
+actor "Network Engineer" as User
+
+package "Input Layer" {
+  component "Topology Screenshot\n(JPEG/PNG)" <<Image>> as Screenshot
+  component "Upload/CLI Input" as InputInterface
+}
+
+package "AI Inference Engine (Python + YOLO)" {
+  rectangle "Object Detection Pipeline\n(device_detector.py)" <<Python>> as Detector {
+    component "Preprocessor\n(resize/normalize)" <<Python>> as Preprocessor
+    component "YOLO Model\n(YOLOv5/YOLOv8)" <<AI>> as YOLOModel
+    component "Post-Processor\n(NMS, class mapping)" as PostProcessor
+    component "Device Classifier\n(router/switch/firewall/etc.)" <<AI>> as Classifier
+  }
+}
+
+database "Device Metadata Store\n(JSON/YAML/DB)" <<Output>> as DeviceDB
+component "Annotated Output\n(labeled image)" <<Output>> as AnnotatedImg
+component "Device Report\n(CSV/HTML/JSON)" <<Output>> as Report
+component "Visualization UI\n(Streamlit/Web App)" as UI
+
+' Flow
+User --> InputInterface : Uploads screenshot
+InputInterface --> Screenshot : Accept image
+Screenshot --> Preprocessor : Resize, normalize
+
+Preprocessor --> YOLOModel : Run object detection
+YOLOModel --> PostProcessor : Clean predictions (NMS, confidence)
+PostProcessor --> Classifier : Label devices (router, switch, etc.)
+Classifier --> DeviceDB : Save structured metadata
+
+Classifier --> AnnotatedImg : Draw boxes and labels
+Classifier --> Report : Generate structured report
+
+AnnotatedImg --> UI : Visualize result
+Report --> UI : Tabular or downloadable output
+
+User --> UI : View detected devices
+
+@enduml
