@@ -1,1 +1,52 @@
-dsv 
+@startuml DNS_Simulator_PacketTracer
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Router>> #FFE4B5
+  BackgroundColor<<Switch>> #ADD8E6
+  BackgroundColor<<Server>> #FFF8DC
+  BackgroundColor<<Client>> #E0F7FF
+  BorderColor Black
+}
+
+title DNS Simulator Setup in Cisco Packet Tracer
+
+actor "Network Engineer" as Engineer
+
+package "Network Infrastructure" {
+
+  node "Router\n(IP: 192.168.1.1)" <<Router>> as Router
+
+  node "Switch" <<Switch>> as Switch
+
+  node "DNS Server\n(IP: 192.168.1.10)" <<Server>> as DNSServer {
+    component "DNS Service\n(hostname to IP mapping)" as DNSService
+  }
+
+  node "Client PC\n(IP: DHCP or static)" <<Client>> as ClientPC
+}
+
+Engineer --> Router : Configure routing & DHCP (optional)
+Engineer --> DNSServer : Configure DNS zone records
+Engineer --> ClientPC : Configure DNS client settings
+
+' Physical connectivity
+Router -- Switch : Gig0/1
+Switch -- DNSServer : Gig0/2
+Switch -- ClientPC : Gig0/3
+
+' Logical interactions
+ClientPC --> DNSServer : DNS Query (e.g., www.example.com)
+DNSServer --> ClientPC : DNS Response (IP address)
+
+ClientPC --> Router : Default gateway for DNS queries
+Router --> DNSServer : Forward DNS queries (if needed)
+
+note right of DNSService
+DNS entries example:
+- www.example.com -> 192.168.1.100
+- ftp.example.com -> 192.168.1.101
+end note
+
+@enduml
