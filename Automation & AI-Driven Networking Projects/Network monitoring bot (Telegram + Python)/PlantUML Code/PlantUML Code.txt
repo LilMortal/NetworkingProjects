@@ -1,1 +1,51 @@
-dsv 
+@startuml NetworkMonitoringBot
+
+skinparam backgroundColor #FFFFFF
+skinparam style strictuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Python>> LightYellow
+  BackgroundColor<<Telegram>> #CCFFCC
+  BackgroundColor<<Network>> #DDEEFF
+  BorderColor Black
+}
+
+actor "Network Admin" as Admin
+
+package "Monitoring System (Python)" {
+  rectangle "Bot Script\n(monitor_bot.py)" <<Python>> as BotScript {
+    component "Device Inventory\n(devices.json)" as Inventory
+    component "Monitoring Engine\n(ping/snmp)" as Monitor
+    component "Scheduler\n(Cron/Threading)" as Scheduler
+    component "Alert Handler" as AlertHandler
+    component "Telegram Bot API Wrapper\n(e.g., python-telegram-bot)" <<Telegram>> as TelegramAPI
+  }
+}
+
+package "Telegram" {
+  database "Telegram Cloud" <<Telegram>> as TelegramServer
+}
+
+package "Network Devices" {
+  node "Router\n192.168.1.1" <<Network>> as Router
+  node "Switch\n192.168.1.2" <<Network>> as Switch
+}
+
+' Flow of actions
+Admin --> TelegramServer : Sends command /status
+TelegramServer --> TelegramAPI : Forwards command
+TelegramAPI --> BotScript : Passes /status request
+
+BotScript --> Inventory : Load monitored devices
+BotScript --> Monitor : Perform checks (ping/SNMP)
+Monitor --> Router : ICMP/SNMP
+Monitor --> Switch : ICMP/SNMP
+
+Monitor --> AlertHandler : Detect failures or anomalies
+AlertHandler --> TelegramAPI : Format and send alert
+TelegramAPI --> TelegramServer : Send alert/update message
+TelegramServer --> Admin : Delivers response
+
+Scheduler --> BotScript : Triggers periodic checks
+
+@enduml
