@@ -1,1 +1,69 @@
-dsv 
+@startuml NATConfiguration
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Router>> #FFE4B5
+  BackgroundColor<<InternalNetwork>> #E0F7FF
+  BackgroundColor<<ExternalNetwork>> #FFDAB9
+  BackgroundColor<<Config>> #F0F0F0
+  BorderColor Black
+}
+
+title NAT Configuration: Static and Dynamic NAT on Cisco Router
+
+actor "Network Administrator" as Admin
+
+node "Cisco Router\n(NAT Device)" <<Router>> as Router {
+  component "Static NAT Config\n(ip nat inside source static 192.168.1.10 203.0.113.10)" <<Config>> as StaticNATConfig
+  component "Dynamic NAT Config\n(ip nat pool NAT_POOL 203.0.113.20 203.0.113.30 netmask 255.255.255.0)" <<Config>> as DynamicNATConfig
+  component "Access List\n(permit 192.168.1.0 0.0.0.255)" <<Config>> as ACL
+  component "Interface Config\n(inside and outside)" <<Config>> as InterfaceConfig
+}
+
+package "Internal Network" <<InternalNetwork>> {
+  node "Host A\n192.168.1.10" as HostA
+  node "Host B\n192.168.1.20" as HostB
+}
+
+package "External Network" <<ExternalNetwork>> {
+  node "Internet" as Internet
+}
+
+Admin --> Router : Configure NAT settings
+Admin --> StaticNATConfig : Map Host A static IP
+Admin --> DynamicNATConfig : Configure NAT pool for dynamic addresses
+Admin --> ACL : Define internal network for NAT
+Admin --> InterfaceConfig : Configure inside/outside interfaces
+
+' NAT process arrows
+HostA --> Router : Traffic from 192.168.1.10
+Router --> Internet : Translates to 203.0.113.10 (Static NAT)
+
+HostB --> Router : Traffic from 192.168.1.20
+Router --> Internet : Translates to dynamic IP from NAT_POOL
+
+note right of StaticNATConfig
+Example Static NAT:
+ip nat inside source static 192.168.1.10 203.0.113.10
+end note
+
+note right of DynamicNATConfig
+Example Dynamic NAT:
+ip nat pool NAT_POOL 203.0.113.20 203.0.113.30 netmask 255.255.255.0
+ip access-list standard NAT_ACL
+ permit 192.168.1.0 0.0.0.255
+ip nat inside source list NAT_ACL pool NAT_POOL
+end note
+
+note right of InterfaceConfig
+interface Gig0/0
+ ip address 192.168.1.1 255.255.255.0
+ ip nat inside
+
+interface Gig0/1
+ ip address 203.0.113.1 255.255.255.0
+ ip nat outside
+end note
+
+@enduml
