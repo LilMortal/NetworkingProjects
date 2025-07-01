@@ -1,1 +1,84 @@
-dsv 
+@startuml CrowdSourced_Mesh_Internet_Tokens
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<MeshNode>> #D0E8F2
+  BackgroundColor<<Blockchain>> #FADBD8
+  BackgroundColor<<Network>> #F9F1C8
+  BackgroundColor<<Incentive>> #C8E6C9
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title Crowd-Sourced Mesh Internet with Incentive Tokens
+
+actor "User / Node Operator" as User
+actor "Network Administrator" as Admin
+
+package "Mesh Network Nodes" <<MeshNode>> {
+  component "Mesh Node\n- Provides connectivity\n- Forwards traffic\n- Earns tokens" as MeshNode
+  component "Routing Protocol\n- Discovers and manages routes" as RoutingProtocol
+}
+
+package "Network Data Exchange" <<Network>> {
+  component "Data Packet Transmission\n- Sends/receives data across mesh" as DataPackets
+}
+
+package "Incentive Token System" <<Incentive>> {
+  component "Token Wallet\n- Stores user tokens" as TokenWallet
+  component "Reward Engine\n- Calculates and issues tokens" as RewardEngine
+  component "Token Transaction Manager\n- Handles transfers and ledger updates" as TokenTxManager
+}
+
+package "Blockchain & Ledger" <<Blockchain>> {
+  component "Smart Contract\n- Defines token issuance rules" as SmartContract
+  component "Distributed Ledger\n- Records token transactions" as Ledger
+  component "Consensus Mechanism\n- Validates transactions" as Consensus
+}
+
+package "Administration & Oversight" <<Admin>> {
+  component "Admin Dashboard\n- Monitors network and tokens" as AdminDashboard
+  component "Policy Manager\n- Sets network & incentive policies" as PolicyManager
+}
+
+User --> MeshNode : Join mesh and share connectivity
+MeshNode --> RoutingProtocol : Exchange routing info
+MeshNode --> DataPackets : Forward/receive data
+
+DataPackets --> MeshNode : Relay data packets across mesh
+
+MeshNode --> RewardEngine : Report forwarding activity
+RewardEngine --> TokenTxManager : Request token issuance
+TokenTxManager --> SmartContract : Submit token transactions
+SmartContract --> Ledger : Record token issuance and transfers
+Consensus --> Ledger : Validate transaction blocks
+TokenTxManager --> TokenWallet : Update token balances
+
+User --> TokenWallet : View and use tokens
+
+Admin --> AdminDashboard : Monitor network health and token economy
+AdminDashboard --> PolicyManager : Update network and incentive policies
+PolicyManager --> SmartContract : Update rules for token issuance
+
+note right of RoutingProtocol
+- Implements dynamic mesh routing protocols (e.g., BATMAN, OLSR)
+- Supports route discovery and maintenance
+end note
+
+note right of RewardEngine
+- Calculates token rewards based on contribution metrics
+- Factors include data forwarded, uptime, bandwidth shared
+end note
+
+note right of SmartContract
+- Enforces token issuance and transfer logic autonomously
+- Ensures transparency and tamper resistance
+end note
+
+note right of Consensus
+- Uses PoW, PoS, or alternative consensus to validate ledger
+- Maintains trust and integrity of token system
+end note
+
+@enduml
