@@ -1,1 +1,47 @@
-dsv 
+@startuml DMZ_Architecture
+
+title DMZ Architecture with Web and DNS Servers
+
+actor "External User" as ExtUser
+actor "Internal Admin" as Admin
+
+node "Edge Firewall" {
+  [NAT / Port Filtering]
+}
+
+cloud "Internet" {
+  [External Client]
+}
+
+node "DMZ" {
+  [Web Server\nHTTP/HTTPS]
+  [DNS Server\nPort 53]
+}
+
+node "Internal Firewall" {
+  [Policy Control]
+}
+
+node "Internal Network" {
+  [Application Server]
+  [Admin PC]
+  [Internal DNS]
+}
+
+' Internet to DMZ
+ExtUser --> [External Client] : Request DNS or HTTP
+[External Client] --> [NAT / Port Filtering] : Public IP Request
+[NAT / Port Filtering] --> [Web Server\nHTTP/HTTPS] : Allow 80/443
+[NAT / Port Filtering] --> [DNS Server\nPort 53] : Allow UDP/TCP 53
+
+' DMZ to Internal (Restricted)
+[Web Server\nHTTP/HTTPS] --> [Application Server] : API/Data Access (optional)
+[DNS Server\nPort 53] --> [Internal DNS] : Forward Internal Queries (optional)
+
+' Internal Admin Access
+Admin --> [Admin PC] : SSH/Management
+[Admin PC] --> [Policy Control] : SSH Access Request
+[Policy Control] --> [Web Server\nHTTP/HTTPS] : Allow SSH
+[Policy Control] --> [DNS Server\nPort 53] : Allow SSH
+
+@enduml
