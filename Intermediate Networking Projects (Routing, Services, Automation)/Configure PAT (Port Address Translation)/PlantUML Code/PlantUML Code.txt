@@ -1,1 +1,51 @@
-dsv 
+@startuml PAT_Configuration
+
+skinparam backgroundColor #FFFFFF
+skinparam node {
+  BackgroundColor #F0F8FF
+  BorderColor Black
+}
+skinparam cloud {
+  BackgroundColor #E0E0E0
+  BorderColor Black
+}
+skinparam rectangle {
+  BackgroundColor #FDF5E6
+  BorderColor Black
+}
+title Port Address Translation (PAT) Configuration Overview
+
+actor "Internet User" as WebUser
+cloud "Internet" {
+  [Web Server\nPublic IP: 8.8.8.8]
+}
+
+node "Router (PAT Enabled)" as Router {
+  rectangle "Inside Interface\n192.168.1.1" as InsideInt
+  rectangle "Outside Interface\n203.0.113.1 (Public IP)" as OutsideInt
+  rectangle "PAT Table\nPort Mapping Table" as NATTable
+}
+
+node "Local Network\n(Private Subnet)" {
+  [PC1\n192.168.1.10]
+  [PC2\n192.168.1.11]
+}
+
+' User initiates connection to Internet
+[PC1\n192.168.1.10] --> InsideInt : HTTP Request to 8.8.8.8
+InsideInt --> NATTable : Translate to\n203.0.113.1:10001
+NATTable --> OutsideInt
+OutsideInt --> [Web Server\nPublic IP: 8.8.8.8] : Send Request
+
+' Response comes back
+[Web Server\nPublic IP: 8.8.8.8] --> OutsideInt : Response to 203.0.113.1:10001
+OutsideInt --> NATTable : Lookup port 10001
+NATTable --> InsideInt : Forward to 192.168.1.10
+InsideInt --> [PC1\n192.168.1.10]
+
+' Same for PC2
+[PC2\n192.168.1.11] --> InsideInt : HTTP Request to 8.8.8.8
+InsideInt --> NATTable : Translate to\n203.0.113.1:10002
+OutsideInt --> [Web Server\nPublic IP: 8.8.8.8]
+
+@enduml
