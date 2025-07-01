@@ -1,1 +1,41 @@
-dsv 
+@startuml FirewallRuleOptimizer
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Input>> #D0E8F2
+  BackgroundColor<<Processor>> #F9F1C8
+  BackgroundColor<<Output>> #C8E6C9
+  BorderColor Black
+}
+
+title Firewall Rule Optimizer
+
+actor "Network Admin" as Admin
+
+package "Input Module" <<Input>> {
+  component "Rule Importer\n- Load firewall rules from files\n- Support CSV, JSON, or native formats" as RuleImporter
+  component "Rule Parser\n- Parse raw rules into structured objects" as RuleParser
+}
+
+package "Processing Module" <<Processor>> {
+  component "Conflict Detector\n- Identify conflicting or redundant rules" as ConflictDetector
+  component "Rule Optimizer\n- Merge, reorder, remove redundant rules\n- Simplify rule sets" as RuleOptimizer
+  component "Policy Validator\n- Ensure optimized rules comply with security policies" as PolicyValidator
+}
+
+package "Output Module" <<Output>> {
+  component "Rule Exporter\n- Export optimized rules to desired format" as RuleExporter
+  component "Report Generator\n- Generate optimization reports and summaries" as ReportGenerator
+}
+
+Admin --> RuleImporter : Upload firewall rules
+RuleImporter --> RuleParser : Pass raw data
+RuleParser --> ConflictDetector : Analyze rule conflicts
+ConflictDetector --> RuleOptimizer : Provide conflict info
+RuleOptimizer --> PolicyValidator : Validate optimized rules
+PolicyValidator --> RuleExporter : Export valid rules
+PolicyValidator --> ReportGenerator : Generate validation report
+Admin --> ReportGenerator : Review optimization report
+
+@enduml
