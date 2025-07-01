@@ -1,1 +1,52 @@
-dsv 
+@startuml BasicTFTPServerSetup
+
+skinparam backgroundColor #FFFFFF
+skinparam style strictuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Server>> #FFF8DC
+  BackgroundColor<<Device>> #E0F7FF
+  BackgroundColor<<Switch>> #F0FFFF
+  BorderColor Black
+}
+
+title Basic TFTP Server Setup for Network Configuration
+
+actor "Network Admin" as Admin
+
+package "Network: 192.168.100.0/24" {
+
+  node "TFTP Server\n192.168.100.10\n/tftpboot" <<Server>> as TFTP {
+    component "TFTP Daemon\n(tftpd-hpa or atftpd)" as Daemon
+    component "Configuration\n/etc/default/tftpd-hpa" as Config
+    component "Root Directory\n(/tftpboot)" as TFTPDir
+  }
+
+  node "Managed Switch\n192.168.100.2" <<Device>> as Switch
+  node "Router\n192.168.100.1" <<Device>> as Router
+
+  node "Access Switch" <<Switch>> as AccessSwitch {
+    rectangle "Client PC\n192.168.100.20" <<Device>> as Client
+  }
+}
+
+' Admin interaction
+Admin --> TFTP : Upload config files, manage services
+
+' Network device interactions
+Switch --> TFTP : PUT startup-config
+Router --> TFTP : GET IOS image
+
+' Client PC interaction
+Client --> TFTP : PUT/GET files (e.g., via `tftp` command)
+
+' TFTP Server internals
+Daemon --> Config : Read settings (port, dir, permissions)
+Daemon --> TFTPDir : Serve/read/write files
+
+note right of Config
+Example settings:
+TFTP_DIRECTORY="/tftpboot"
+TFTP_ADDRESS="0.0.0.0:69"
+TFTP_OPTIONS="--secure"
+end note
