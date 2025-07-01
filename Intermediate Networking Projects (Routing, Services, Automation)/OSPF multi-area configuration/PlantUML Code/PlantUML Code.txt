@@ -1,1 +1,59 @@
-dsv 
+@startuml OSPF_MultiArea_Config
+
+title OSPF Multi-Area Routing Configuration
+
+skinparam node {
+  BackgroundColor #FFF8DC
+  BorderColor #8B4513
+}
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #D2691E
+}
+
+' Routers with Area assignments and interfaces
+node "Router R1\nArea 0 (Backbone)\nInterfaces:\n - Fa0/0: 10.0.0.1/24\n - Fa0/1: 172.16.1.1/24" as R1
+node "Router R2\nArea 0 (Backbone)\nInterfaces:\n - Fa0/0: 10.0.0.2/24\n - Fa0/1: 192.168.1.1/24" as R2
+node "Router R3\nArea 1\nInterfaces:\n - Fa0/0: 192.168.1.2/24\n - Fa0/1: 172.16.1.2/24" as R3
+
+' Network Segments
+rectangle "Area 0\nBackbone\n10.0.0.0/24" as Area0
+rectangle "Area 1\n192.168.1.0/24" as Area1
+
+' Connections in Backbone (Area 0)
+Area0 --> R1 : Fa0/0
+Area0 --> R2 : Fa0/0
+
+' Connections in Area 1
+Area1 --> R2 : Fa0/1
+Area1 --> R3 : Fa0/0
+
+' Link between R1 and R3 (optional, inter-area routing)
+R1 --> R3 : Fa0/1\n172.16.1.0/24
+
+' Notes on configuration
+note right of R1
+OSPF Config:
+-------------
+router ospf 1
+ network 10.0.0.0 0.0.0.255 area 0
+ network 172.16.1.0 0.0.0.255 area 0
+end note
+
+note left of R2
+OSPF Config:
+-------------
+router ospf 1
+ network 10.0.0.0 0.0.0.255 area 0
+ network 192.168.1.0 0.0.0.255 area 1
+end note
+
+note right of R3
+OSPF Config:
+-------------
+router ospf 1
+ network 192.168.1.0 0.0.0.255 area 1
+ network 172.16.1.0 0.0.0.255 area 0  ! if connected directly
+end note
+
+@enduml
