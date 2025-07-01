@@ -1,1 +1,76 @@
-dsv 
+@startuml IDSIPS_Snort_Suricata_Setup
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Capture>> #D0E8F2
+  BackgroundColor<<Processing>> #F9F1C8
+  BackgroundColor<<Detection>> #C8E6C9
+  BackgroundColor<<Alerting>> #FADBD8
+  BackgroundColor<<Management>> #FBE4E6
+  BorderColor Black
+}
+
+title IDS/IPS Setup using Snort or Suricata
+
+actor "Security Analyst" as Analyst
+
+package "Packet Capture Module" <<Capture>> {
+  component "Network Interface\n- Captures live traffic (promiscuous mode)" as NetInterface
+  component "Packet Capture Engine\n- libpcap or PF_RING" as PacketCaptureEngine
+}
+
+package "Processing Module" <<Processing>> {
+  component "Preprocessor\n- Normalize and preprocess packets" as Preprocessor
+  component "Detection Engine\n- Apply rules and signatures" as DetectionEngine
+  component "Rule Set\n- Signature-based detection rules" as RuleSet
+}
+
+package "Detection Module" <<Detection>> {
+  component "Anomaly Detector\n- Behavioral and protocol anomaly detection" as AnomalyDetector
+}
+
+package "Alerting & Logging" <<Alerting>> {
+  component "Alert Manager\n- Generate and manage alerts" as AlertManager
+  component "Log Manager\n- Store events and alerts" as LogManager
+  component "Dashboard / SIEM\n- Visualize alerts and logs" as Dashboard
+}
+
+package "Management Console" <<Management>> {
+  component "Rule Management\n- Add/update/delete rules" as RuleMgmt
+  component "Configuration Manager\n- Manage IDS/IPS settings" as ConfigMgr
+  component "Report Generator\n- Generate security reports" as ReportGen
+}
+
+Analyst --> RuleMgmt : Manage rules
+Analyst --> ConfigMgr : Configure IDS/IPS
+Analyst --> Dashboard : Monitor alerts & logs
+RuleMgmt --> RuleSet : Update rules
+NetInterface --> PacketCaptureEngine : Capture live packets
+PacketCaptureEngine --> Preprocessor : Preprocess packets
+Preprocessor --> DetectionEngine : Inspect packets using rules
+DetectionEngine --> RuleSet : Use signature rules
+Preprocessor --> AnomalyDetector : Send packets for anomaly detection
+DetectionEngine --> AlertManager : Alert on signature matches
+AnomalyDetector --> AlertManager : Alert on anomalies
+AlertManager --> LogManager : Log alerts/events
+LogManager --> Dashboard : Provide data for visualization
+ReportGen --> Analyst : Provide reports
+
+note right of PacketCaptureEngine
+Uses libpcap or high-performance capture libs
+end note
+
+note right of DetectionEngine
+Signature-based detection (Snort/Suricata rules)
+end note
+
+note right of AnomalyDetector
+Behavioral detection for unknown threats
+end note
+
+note right of AlertManager
+Handles alert thresholds and notifications
+end note
+
+@enduml
