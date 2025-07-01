@@ -1,1 +1,96 @@
-dsv 
+@startuml Digital_Twin_Network_Infrastructure
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Physical>> #D0E8F2
+  BackgroundColor<<DigitalTwin>> #FADBD8
+  BackgroundColor<<Data>> #F9F1C8
+  BackgroundColor<<Analytics>> #C8E6C9
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title Digital Twin for Network Infrastructure
+
+actor "Network Administrator" as Admin
+
+package "Physical Network Infrastructure" <<Physical>> {
+  component "Network Devices\n(Routers, Switches, Firewalls)" as PhysicalDevices
+  component "Physical Network Links\n(Cables, Wireless)" as PhysicalLinks
+}
+
+package "Digital Twin Layer" <<DigitalTwin>> {
+  component "Virtual Network Devices\nDigital replicas of physical devices" as VirtualDevices
+  component "Virtual Network Topology\nMirror of physical network topology" as VirtualTopology
+  component "Configuration Sync Module\nKeeps digital twin configs up-to-date" as ConfigSync
+}
+
+package "Data Collection & Storage" <<Data>> {
+  component "Telemetry Collector\nGather real-time device metrics & logs" as TelemetryCollector
+  component "Time-Series Database\nStore historical telemetry data" as TSDatabase
+  component "Event Logger\nRecord network events and alerts" as EventLogger
+}
+
+package "Simulation & Analytics" <<Analytics>> {
+  component "Network Simulator\nRun what-if and failure scenarios" as Simulator
+  component "Anomaly Detector\nDetect deviations from normal behavior" as AnomalyDetector
+  component "Performance Analyzer\nAnalyze network KPIs and trends" as PerformanceAnalyzer
+  component "Predictive Engine\nForecast network issues & capacity needs" as PredictiveEngine
+}
+
+package "Administration & Control" <<Admin>> {
+  component "Admin Console\nVisualize twin and control simulation" as AdminConsole
+  component "Policy Manager\nDefine sync and alert policies" as PolicyManager
+}
+
+PhysicalDevices --> TelemetryCollector : Send real-time metrics & logs
+PhysicalLinks --> TelemetryCollector : Send link status data
+
+TelemetryCollector --> TSDatabase : Store telemetry data
+TelemetryCollector --> EventLogger : Log network events
+
+TSDatabase --> VirtualDevices : Provide historical data for digital twin
+EventLogger --> VirtualDevices : Provide event context
+
+ConfigSync --> PhysicalDevices : Retrieve physical device configs
+ConfigSync --> VirtualDevices : Update digital twin configs
+
+VirtualDevices --> VirtualTopology : Update virtual topology based on device status
+
+VirtualTopology --> Simulator : Provide network model for simulation
+Simulator --> AdminConsole : Present simulation results
+
+TSDatabase --> AnomalyDetector : Provide telemetry data stream
+AnomalyDetector --> AdminConsole : Alert anomalies
+
+TSDatabase --> PerformanceAnalyzer : Provide data for KPI analysis
+PerformanceAnalyzer --> AdminConsole : Report network performance
+
+TSDatabase --> PredictiveEngine : Historical data input
+PredictiveEngine --> AdminConsole : Forecast and recommendations
+
+Admin --> AdminConsole : Manage twin, run simulations, view alerts
+AdminConsole --> PolicyManager : Configure policies for sync, alerts, and analysis
+
+note right of VirtualDevices
+- Maintain real-time state synchronized with physical devices
+- Include device configs, status, and metrics
+end note
+
+note right of Simulator
+- Supports testing network changes before production deployment
+- Simulates failures, load changes, and recovery
+end note
+
+note right of AnomalyDetector
+- Uses ML and rule-based detection methods
+- Flags deviations from baseline network behavior
+end note
+
+note right of PredictiveEngine
+- Applies forecasting models for proactive maintenance
+- Helps optimize capacity planning
+end note
+
+@enduml
