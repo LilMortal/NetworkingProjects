@@ -1,1 +1,46 @@
-dsv 
+@startuml BasicSwitchConfiguration
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Switch>> #E0F7FF
+  BackgroundColor<<Admin>> #FFF5CC
+  BorderColor Black
+}
+
+actor "Network Administrator" as Admin
+
+node "Network Switch" <<Switch>> as Switch {
+  component "Hostname Configuration\n(set hostname)" as Hostname
+  component "SSH Setup\n(enable ssh, generate keys)" as SSH
+  component "Banner Configuration\n(motd/banner login)" as Banner
+  component "Line Configuration\n(vty access control)" as LineConfig
+}
+
+Admin --> Switch : Access via console or existing management interface
+
+Admin --> Hostname : Set hostname (e.g., switch01)
+Hostname --> Switch : Apply hostname config
+
+Admin --> SSH : Enable SSH service\nGenerate RSA keys\nSet domain name
+SSH --> Switch : Apply SSH config
+
+Admin --> Banner : Configure MOTD banner\nSet login banner
+Banner --> Switch : Apply banner config
+
+Admin --> LineConfig : Configure vty lines\nSet access permissions
+LineConfig --> Switch : Apply line config
+
+note right of Switch
+Sample CLI commands:
+
+hostname switch01
+ip domain-name example.com
+crypto key generate rsa
+line vty 0 4
+ login local
+ transport input ssh
+banner motd #Unauthorized access prohibited#
+end note
+
+@enduml
