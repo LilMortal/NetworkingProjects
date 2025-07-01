@@ -1,1 +1,60 @@
-dsv 
+@startuml Secure_WiFi_Lab_WPA3_MAC_Filtering
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<AccessPoint>> #D0E8F2
+  BackgroundColor<<Security>> #F9F1C8
+  BackgroundColor<<Client>> #C8E6C9
+  BackgroundColor<<Admin>> #FADBD8
+  BorderColor Black
+}
+
+title Secure Wi-Fi Lab with WPA3 + MAC Filtering
+
+actor "Network Administrator" as Admin
+
+package "Wi-Fi Infrastructure" <<AccessPoint>> {
+  component "Wireless Access Point (AP)\n- Supports WPA3 encryption\n- MAC address filtering enabled" as AccessPoint
+}
+
+package "Security Mechanisms" <<Security>> {
+  component "WPA3 Encryption\n- SAE handshake\n- Forward secrecy" as WPA3
+  component "MAC Filtering\n- Allowlist of authorized MACs\n- Block unauthorized devices" as MACFiltering
+}
+
+package "Client Devices" <<Client>> {
+  component "Authorized Clients\n- Known MAC addresses\n- Connect via WPA3" as AuthorizedClients
+  component "Unauthorized Devices\n- Unknown MAC addresses\n- Blocked by MAC filter" as UnauthorizedDevices
+}
+
+package "Administration" <<Admin>> {
+  component "Admin Console\n- Manage MAC allowlist\n- Configure WPA3 settings" as AdminConsole
+  component "Monitoring System\n- Log connection attempts\n- Alert on unauthorized access" as MonitoringSystem
+}
+
+Admin --> AdminConsole : Configure WPA3 and MAC filtering
+AdminConsole --> AccessPoint : Push security configurations
+AuthorizedClients --> AccessPoint : Authenticate and connect (WPA3)
+UnauthorizedDevices --> AccessPoint : Connection attempt blocked (MAC Filtering)
+AccessPoint --> WPA3 : Enforce WPA3 encryption
+AccessPoint --> MACFiltering : Apply MAC address filtering
+AccessPoint --> MonitoringSystem : Send connection logs and alerts
+MonitoringSystem --> Admin : Notify about unauthorized access attempts
+
+note right of WPA3
+- Uses SAE (Simultaneous Authentication of Equals)
+- Provides robust encryption and forward secrecy
+end note
+
+note right of MACFiltering
+- Maintains allowlist of MAC addresses
+- Blocks devices not on the list
+end note
+
+note right of MonitoringSystem
+- Logs all connection attempts
+- Sends real-time alerts for suspicious activity
+end note
+
+@enduml
