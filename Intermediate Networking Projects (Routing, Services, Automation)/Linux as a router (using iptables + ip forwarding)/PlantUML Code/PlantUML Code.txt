@@ -1,1 +1,52 @@
-dsv 
+@startuml Linux_Router_Setup
+
+title Linux as a Router with IP Forwarding and iptables
+
+skinparam node {
+  BackgroundColor #E6F2FF
+  BorderColor #333366
+}
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor black
+}
+
+' Define Nodes
+node "LAN Network\n192.168.1.0/24" as LAN
+node "Linux Router\neth0: 192.168.1.1\neth1: 203.0.113.2" as Router
+node "WAN/Internet\n203.0.113.0/24" as WAN
+
+' Client machines on LAN
+rectangle "Client PC 1\n192.168.1.10" as PC1
+rectangle "Client PC 2\n192.168.1.11" as PC2
+
+' Connections
+LAN --> Router : eth0
+Router --> WAN : eth1
+PC1 --> LAN
+PC2 --> LAN
+
+note right of Router
+Linux Configuration:
+- Enable IP forwarding:
+  sysctl -w net.ipv4.ip_forward=1
+- Persistent: /etc/sysctl.conf → net.ipv4.ip_forward=1
+
+iptables NAT Rules:
+- iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+- iptables -A FORWARD -i eth0 -o eth1 -j ACCEPT
+- iptables -A FORWARD -i eth1 -o eth0 -m state --state ESTABLISHED,RELATED -j ACCEPT
+end note
+
+note bottom of LAN
+DHCP or static IPs:
+- Gateway: 192.168.1.1 (Linux Router)
+- DNS: Optional local resolver or external
+end note
+
+note bottom of WAN
+Assumed public interface with Internet access
+IP assigned by ISP or static (e.g., 203.0.113.2)
+end note
+
+@enduml
