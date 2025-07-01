@@ -1,1 +1,57 @@
-dsv 
+@startuml Custom_Routing_Protocol_Simulator
+
+skinparam componentStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam rectangle {
+  BackgroundColor<<Core>> #D0E8F2
+  BackgroundColor<<Router>> #FBE4E6
+  BackgroundColor<<Network>> #C8E6C9
+  BackgroundColor<<Log>> #F9F1C8
+  BorderColor Black
+}
+
+title Custom Routing Protocol Simulator (Python)
+
+package "Routing Simulator Core" <<Core>> {
+  component "Simulator Engine\n- Initializes network\n- Manages event loop" as Engine
+  component "Packet Handler\n- Encodes/decodes routing packets" as PacketHandler
+  component "Topology Manager\n- Manages graph of routers/links" as TopoManager
+}
+
+package "Virtual Routers" <<Router>> {
+  component "Router Node\n- Unique ID\n- Maintains routing table" as RouterNode
+  component "Routing Protocol Logic\n- Custom algorithm (e.g., DV/LS)" as RoutingLogic
+  component "Neighbor Discovery\n- Detects & tracks neighbors" as NeighborModule
+}
+
+package "Simulated Network" <<Network>> {
+  component "Link Model\n- Delay, bandwidth, status" as LinkModel
+  component "Event Scheduler\n- Simulates time and failures" as Scheduler
+}
+
+package "Logging & Debugging" <<Log>> {
+  component "Logger\n- Stores routing tables, packets, changes" as Logger
+  component "Visualizer\n- Generates routing graph snapshots" as Visualizer
+}
+
+' Simulator Initialization
+Engine --> TopoManager : Load topology
+Engine --> Scheduler : Start simulation loop
+Engine --> RouterNode : Spawn routers
+
+' Router internal logic
+RouterNode --> RoutingLogic : Run protocol
+RouterNode --> NeighborModule : Monitor neighbors
+RoutingLogic --> PacketHandler : Format routing updates
+PacketHandler --> RouterNode : Deliver incoming packets
+
+' Link interactions
+RouterNode --> LinkModel : Send/receive packets
+LinkModel --> Scheduler : Simulate delay/failure
+
+' Logging
+RouterNode --> Logger : Record routing table
+PacketHandler --> Logger : Log packet activity
+Engine --> Visualizer : Render simulation snapshots
+
+@enduml
