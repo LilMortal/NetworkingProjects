@@ -1,1 +1,52 @@
-dsv 
+@startuml AnsiblePushConfigToSwitches
+
+skinparam backgroundColor #FFFFFF
+skinparam style strictuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Ansible>> #FFF5DD
+  BackgroundColor<<Switch>> #DDEEFF
+  BackgroundColor<<File>> #F0F8FF
+  BorderColor Black
+}
+
+actor "Network Engineer" as Admin
+
+package "Ansible Automation System" {
+  node "Control Node (Ansible CLI)" <<Ansible>> as ControlNode {
+    component "Inventory File\n(inventory.ini/YAML)" <<File>> as Inventory
+    component "Playbook\n(switch_config.yml)" <<File>> as Playbook
+    component "Roles/Tasks\n(configure_interface.yml)" <<File>> as Tasks
+    component "Vars Files\n(vars.yml)" <<File>> as Vars
+    component "Templates\n(config.j2)" <<File>> as Templates
+    component "Ansible Engine\n(ansible-playbook)" as Engine
+    component "Log Handler\n(output.json/logs)" as LogHandler
+  }
+}
+
+package "Network Devices" {
+  node "Cisco Switch 1\n192.168.1.10" <<Switch>> as Switch1
+  node "Cisco Switch 2\n192.168.1.11" <<Switch>> as Switch2
+}
+
+database "Execution Logs\n(JSON/Flat File/ELK)" as LogStore
+
+' Flow
+Admin --> ControlNode : Triggers ansible-playbook
+ControlNode --> Inventory : Load target devices
+ControlNode --> Vars : Load configuration variables
+ControlNode --> Playbook : Execute playbook
+Playbook --> Tasks : Execute defined tasks
+Tasks --> Templates : Render CLI config (e.g., Jinja2)
+Tasks --> Engine : Invoke modules (ios_config/cli/command)
+
+Engine --> Switch1 : SSH connection and push config
+Engine --> Switch2 : SSH connection and push config
+
+Engine --> LogHandler : Capture success/failure
+LogHandler --> LogStore : Store execution results
+
+Switch1 --> Engine : Return CLI output
+Switch2 --> Engine : Return CLI output
+
+@enduml
