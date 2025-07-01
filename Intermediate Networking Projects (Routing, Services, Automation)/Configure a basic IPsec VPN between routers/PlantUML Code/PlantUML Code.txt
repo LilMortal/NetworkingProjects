@@ -1,1 +1,59 @@
-dsv 
+@startuml IPsec_VPN_Basic_Configuration
+
+skinparam backgroundColor #FFFFFF
+skinparam node {
+  BackgroundColor #E6F0FA
+  BorderColor Black
+}
+skinparam cloud {
+  BackgroundColor #F5F5F5
+  BorderColor Black
+}
+skinparam rectangle {
+  BackgroundColor #FFF8DC
+  BorderColor Black
+}
+
+title Basic IPsec VPN Tunnel Between Two Routers
+
+' === Remote Site A ===
+node "Remote Site A\n(192.168.1.0/24)" {
+  [Host A\n192.168.1.10]
+  rectangle "Router A\nPublic IP: 203.0.113.1\nInternal IP: 192.168.1.1" as RouterA
+}
+
+' === Remote Site B ===
+node "Remote Site B\n(192.168.2.0/24)" {
+  [Host B\n192.168.2.10]
+  rectangle "Router B\nPublic IP: 198.51.100.1\nInternal IP: 192.168.2.1" as RouterB
+}
+
+cloud "Internet" {
+  [Public Network]
+}
+
+' === Connections ===
+[Host A\n192.168.1.10] --> RouterA : Local Traffic
+RouterA --> [Public Network] : Encrypted IPsec Tunnel
+[Public Network] --> RouterB : ESP Packets
+RouterB --> [Host B\n192.168.2.10] : Forward Decrypted Packet
+
+' === Labels ===
+note right of RouterA
+- IPsec Phase 1 (ISAKMP)
+- IPsec Phase 2 (IPsec SA)
+- Pre-shared key
+- Transform set (e.g., AES, SHA)
+- Crypto ACL: Match 192.168.1.0/24 <-> 192.168.2.0/24
+end note
+
+note left of RouterB
+- Same key/parameters
+- Matching crypto ACL
+- Tunnel interface or policy-based VPN
+end note
+
+' === VPN Tunnel ===
+RouterA -[#blue,dashed,thickness=2]-> RouterB : IPsec Tunnel (ESP-encrypted)
+
+@enduml
