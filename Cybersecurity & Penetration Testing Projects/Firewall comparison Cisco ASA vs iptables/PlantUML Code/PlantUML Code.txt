@@ -1,1 +1,89 @@
-dsv 
+@startuml FirewallComparison_CiscoASA_vs_iptables
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Cisco>> #D0E8F2
+  BackgroundColor<<IPTables>> #F9F1C8
+  BorderColor Black
+}
+
+title Firewall Comparison: Cisco ASA vs iptables
+
+actor "Network Admin" as Admin
+
+package "Cisco ASA Firewall" <<Cisco>> {
+  component "ASA Hardware Appliance\n- Dedicated firewall device" as ASA_Hardware
+  component "ASA OS\n- Proprietary Cisco OS with Firewall services" as ASA_OS
+  component "ASDM GUI\n- Cisco Adaptive Security Device Manager" as ASDM
+  component "CLI\n- Cisco ASA command-line interface" as ASA_CLI
+  component "Security Policies\n- Stateful inspection, NAT, VPN" as ASA_Policies
+  component "High Availability\n- Failover & clustering" as ASA_HA
+  component "Logging & Monitoring\n- Syslog, SNMP, NetFlow" as ASA_Logging
+}
+
+package "iptables Firewall" <<IPTables>> {
+  component "Linux Kernel Module\n- Netfilter framework integration" as IPT_Kernel
+  component "iptables Utility\n- Command-line tool for rule management" as IPT_Utility
+  component "UFW / Firewalld (optional)\n- User-friendly frontends" as IPT_Frontend
+  component "Security Policies\n- Packet filtering, NAT, Mangle" as IPT_Policies
+  component "Scripting & Automation\n- Extensive script integration" as IPT_Scripting
+  component "Logging & Monitoring\n- syslog, iptables logs" as IPT_Logging
+  component "Flexibility & Customization\n- Wide range of match modules" as IPT_Flex
+}
+
+Admin --> ASA_CLI : Configure firewall rules
+Admin --> ASDM : Use GUI for management
+Admin --> IPT_Utility : Manage iptables rules
+Admin --> IPT_Frontend : Optional easier config tools
+
+note left of ASA_Hardware
+- Dedicated appliance
+- High performance
+- Hardware accelerated
+end note
+
+note right of IPT_Kernel
+- Part of Linux OS
+- No additional hardware
+- Flexible and open-source
+end note
+
+note left of ASA_Policies
+- Stateful inspection
+- NAT and PAT support
+- VPN (IPSec, SSL)
+end note
+
+note right of IPT_Policies
+- Packet filtering by chains and tables
+- NAT, SNAT, DNAT
+- Mangle for packet alteration
+end note
+
+note left of ASA_HA
+- Active/Standby failover
+- Clustering support
+end note
+
+note right of IPT_Scripting
+- Integrate with shell scripts
+- Dynamic rule generation
+end note
+
+note left of ASA_Logging
+- Centralized logging
+- Integration with Cisco monitoring tools
+end note
+
+note right of IPT_Logging
+- Uses syslog
+- Customizable log formats
+end note
+
+note right of IPT_Flex
+- Rich match modules (state, time, MAC, IP sets)
+- Supports custom chains
+end note
+
+@enduml
