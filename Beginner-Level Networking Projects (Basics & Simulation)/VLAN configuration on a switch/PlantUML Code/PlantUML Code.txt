@@ -1,1 +1,63 @@
-dsv 
+@startuml VLANConfigurationSwitch
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Switch>> #FFE4B5
+  BackgroundColor<<VLAN>> #E0F7FF
+  BackgroundColor<<Config>> #F0F0F0
+  BorderColor Black
+}
+
+title VLAN Configuration on a Switch
+
+actor "Network Administrator" as Admin
+
+node "Switch" <<Switch>> as Switch {
+  component "VLAN Database\n- Create VLANs (e.g., VLAN 10, VLAN 20)" <<VLAN>> as VLANDB
+  component "Access Ports\n- Assign ports to VLANs" <<Config>> as AccessPorts
+  component "Trunk Ports\n- Configure trunk for VLAN tagging" <<Config>> as TrunkPorts
+  component "VLAN Routing\n(Optional)\n- SVI configuration for inter-VLAN routing" <<Config>> as SVI
+}
+
+Admin --> VLANDB : Create VLANs
+Admin --> AccessPorts : Assign VLAN membership to ports
+Admin --> TrunkPorts : Configure trunk ports
+Admin --> SVI : Configure SVIs (if Layer 3 switch)
+
+note right of VLANDB
+Example commands:
+vlan 10
+ name Sales
+vlan 20
+ name Engineering
+end note
+
+note right of AccessPorts
+Example commands:
+interface Gig0/1
+ switchport mode access
+ switchport access vlan 10
+
+interface Gig0/2
+ switchport mode access
+ switchport access vlan 20
+end note
+
+note right of TrunkPorts
+Example commands:
+interface Gig0/24
+ switchport mode trunk
+ switchport trunk allowed vlan 10,20
+end note
+
+note right of SVI
+Example commands (Layer 3 switch):
+interface vlan 10
+ ip address 192.168.10.1 255.255.255.0
+
+interface vlan 20
+ ip address 192.168.20.1 255.255.255.0
+end note
+
+@enduml
