@@ -1,1 +1,94 @@
-dsv 
+@startuml AI_Driven_Autonomous_Network_Healing
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Monitoring>> #D0E8F2
+  BackgroundColor<<AI>> #FADBD8
+  BackgroundColor<<Network>> #F9F1C8
+  BackgroundColor<<Control>> #C8E6C9
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title AI-Driven Autonomous Network Healing System
+
+actor "Network Administrator" as Admin
+
+package "Network Infrastructure" <<Network>> {
+  component "Routers / Switches / Firewalls\n- Network devices generating telemetry" as Devices
+  component "Network Services\n- DNS, DHCP, VPN, etc." as Services
+}
+
+package "Monitoring & Telemetry" <<Monitoring>> {
+  component "Telemetry Collector\n- Gathers logs, metrics, events" as TelemetryCollector
+  component "Health Dashboard\n- Visualizes network status" as HealthDashboard
+}
+
+package "AI & Analytics Engine" <<AI>> {
+  component "Anomaly Detection\n- Identifies faults and degradations" as AnomalyDetector
+  component "Root Cause Analysis\n- Diagnoses underlying issues" as RCA
+  component "Healing Decision Module\n- Determines corrective actions" as HealingDecision
+  component "Machine Learning Models\n- Learn normal and abnormal patterns" as MLModels
+}
+
+package "Autonomous Healing" <<Control>> {
+  component "Automation Engine\n- Executes healing workflows" as AutomationEngine
+  component "Network Orchestrator\n- Applies config changes, restarts" as Orchestrator
+  component "Feedback Loop\n- Validates healing success" as FeedbackLoop
+}
+
+package "Administration & Control" <<Admin>> {
+  component "Admin Console\n- Monitor and override actions" as AdminConsole
+  component "Policy Manager\n- Define healing policies and thresholds" as PolicyManager
+}
+
+Devices --> TelemetryCollector : Send telemetry data
+Services --> TelemetryCollector : Send service metrics and logs
+
+TelemetryCollector --> AnomalyDetector : Provide telemetry data
+AnomalyDetector --> RCA : Trigger diagnosis on anomaly
+RCA --> HealingDecision : Provide root cause insights
+
+MLModels --> AnomalyDetector : Support anomaly detection
+MLModels --> RCA : Support root cause analysis
+HealingDecision --> AutomationEngine : Issue healing commands
+
+AutomationEngine --> Orchestrator : Execute healing actions
+Orchestrator --> Devices : Apply config changes / restart / isolate
+Orchestrator --> Services : Restart / reconfigure services
+
+Orchestrator --> FeedbackLoop : Report healing outcome
+FeedbackLoop --> HealingDecision : Feedback on effectiveness
+
+Admin --> AdminConsole : Monitor system status and alerts
+AdminConsole --> PolicyManager : Configure policies and thresholds
+AdminConsole --> HealingDecision : Override or approve actions
+AdminConsole --> TelemetryCollector : View raw telemetry
+
+note right of AnomalyDetector
+- Detects performance degradation, link failures, misconfigurations
+- Uses ML models and threshold-based triggers
+end note
+
+note right of RCA
+- Correlates events to find root cause
+- Utilizes historical data and dependency maps
+end note
+
+note right of HealingDecision
+- Chooses automated repair steps
+- Prioritizes actions based on impact and confidence
+end note
+
+note right of AutomationEngine
+- Orchestrates workflows such as device reboot, config rollback
+- Integrates with network management APIs
+end note
+
+note right of FeedbackLoop
+- Monitors post-healing network state
+- Adjusts ML models and policies accordingly
+end note
+
+@enduml
