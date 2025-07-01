@@ -1,1 +1,52 @@
-dsv 
+@startuml EIGRP_Routing_Lab
+
+title EIGRP Routing Lab - Multi-Router Setup
+
+skinparam node {
+  BackgroundColor #F0F8FF
+  BorderColor black
+}
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #666666
+}
+
+' Define routers
+node "Router R1\nEIGRP AS 100\n192.168.1.1/24\n10.0.12.1/30" as R1
+node "Router R2\nEIGRP AS 100\n192.168.2.1/24\n10.0.12.2/30\n10.0.23.1/30" as R2
+node "Router R3\nEIGRP AS 100\n192.168.3.1/24\n10.0.23.2/30" as R3
+
+' Define LANs
+rectangle "LAN 1\n192.168.1.0/24" as LAN1
+rectangle "LAN 2\n192.168.2.0/24" as LAN2
+rectangle "LAN 3\n192.168.3.0/24" as LAN3
+
+' Connections to routers
+LAN1 --> R1 : Fa0/0
+LAN2 --> R2 : Fa0/0
+LAN3 --> R3 : Fa0/0
+
+' Inter-router links
+R1 --> R2 : Serial0/0/0\n10.0.12.0/30
+R2 --> R3 : Serial0/0/1\n10.0.23.0/30
+
+' EIGRP relationships
+note right of R1
+- EIGRP Autonomous System 100
+- Network: 192.168.1.0/24, 10.0.12.0/30
+- No passive interfaces
+end note
+
+note top of R2
+- EIGRP AS 100
+- Network: 192.168.2.0/24, 10.0.12.0/30, 10.0.23.0/30
+- Auto-summary disabled
+end note
+
+note left of R3
+- EIGRP AS 100
+- Network: 192.168.3.0/24, 10.0.23.0/30
+- Neighbor: R2 via S0/0/1
+end note
+
+@enduml
