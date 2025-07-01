@@ -1,1 +1,26 @@
-dsv 
+@startuml WirelessNetworkWPA2Simple
+
+title Wireless Network Setup with WPA2 Security
+
+actor "Network Admin" as Admin
+
+rectangle "Access Point (AP)" as AP {
+  rectangle "SSID: MyNetwork" 
+  rectangle "Security: WPA2 (AES)" 
+  rectangle "RADIUS Client (optional)" 
+}
+
+rectangle "Wireless Client" as Client {
+  rectangle "WiFi Adapter (WPA2 supported)" 
+  rectangle "Supplicant (802.1X / PSK)" 
+}
+
+rectangle "RADIUS Server (optional)" as Radius
+
+Admin --> AP : Configure SSID & Security
+Client --> AP : Connect & Authenticate
+AP --> Radius : Forward Authentication Request
+Radius --> AP : Authentication Response
+AP --> Client : Allow Access if Authenticated
+
+@enduml
