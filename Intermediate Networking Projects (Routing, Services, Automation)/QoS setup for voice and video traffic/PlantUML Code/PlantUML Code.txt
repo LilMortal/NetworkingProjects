@@ -1,1 +1,62 @@
-dsv 
+@startuml QoS_Voice_Video_Setup
+
+title QoS Setup for Voice and Video Traffic
+
+skinparam node {
+  BackgroundColor #FFF5E1
+  BorderColor #D2691E
+}
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #CD853F
+}
+
+' Network devices
+node "Router/Switch\nQoS Device" as Device
+
+' Traffic sources
+rectangle "Voice Traffic\n(SIP, RTP)\nUDP ports 5060, 10000-20000" as VoiceTraffic
+rectangle "Video Traffic\n(RTSP, RTP)\nUDP ports 554, 10000-20000" as VideoTraffic
+rectangle "Data Traffic\n(HTTP, FTP, etc.)" as DataTraffic
+
+' Traffic flows into device
+VoiceTraffic --> Device : Mark DSCP EF (Expedited Forwarding)
+VideoTraffic --> Device : Mark DSCP AF41/AF42 (Assured Forwarding)
+DataTraffic --> Device : Default DSCP / Best Effort
+
+' QoS Components on device
+rectangle "Class Maps\n- Match Voice\n- Match Video\n- Match Data" as ClassMaps
+rectangle "Policy Map\n- Priority Queue (Voice)\n- Bandwidth Guarantee (Video)\n- Weighted Fair Queue (Data)" as PolicyMap
+rectangle "Interface\n- Apply Service Policy Inbound/Outbound" as Interface
+
+' Flow through QoS components
+Device --> ClassMaps : Traffic classification
+ClassMaps --> PolicyMap : Define actions per class
+PolicyMap --> Interface : Attach policy to interface
+
+' Additional notes on QoS
+note right of PolicyMap
+Voice traffic: Priority queue with strict priority
+Video traffic: Bandwidth guaranteed, WFQ
+Data traffic: Best effort, lower priority
+end note
+
+note bottom of Interface
+Cisco IOS example commands:
+
+class-map match-any VOICE
+ match protocol rtp audio
+class-map match-any VIDEO
+ match protocol rtp video
+policy-map QOS_POLICY
+ class VOICE
+  priority 1500
+ class VIDEO
+  bandwidth 2000
+ class class-default
+  fair-queue
+interface GigabitEthernet0/1
+ service-policy output QOS_POLICY
+end note
+
+@enduml
