@@ -1,1 +1,65 @@
-dsv 
+@startuml SecureSDNSimulation
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Controller>> #D0E8F2
+  BackgroundColor<<Switch>> #FFE4B5
+  BackgroundColor<<Security>> #F9F1C8
+  BackgroundColor<<Application>> #C8E6C9
+  BorderColor Black
+}
+
+title Full Secure SDN Simulation (OpenFlow + RYU)
+
+actor "Network Administrator" as Admin
+
+node "RYU SDN Controller" <<Controller>> as Controller {
+  component "Topology Manager" as TopologyManager
+  component "Flow Manager" as FlowManager
+  component "Security Module" <<Security>> as SecurityModule
+  component "Policy Engine" as PolicyEngine
+  component "OpenFlow Protocol Handler" as OFHandler
+}
+
+node "OpenFlow Switch 1" <<Switch>> as Switch1 {
+  component "OpenFlow Agent" as OFAgent1
+}
+
+node "OpenFlow Switch 2" <<Switch>> as Switch2 {
+  component "OpenFlow Agent" as OFAgent2
+}
+
+Admin --> Controller : Define security policies and network config
+Controller --> Switch1 : Install flow rules via OpenFlow
+Controller --> Switch2 : Install flow rules via OpenFlow
+
+Switch1 --> Controller : Send packet-in events
+Switch2 --> Controller : Send packet-in events
+
+OFAgent1 --> Switch1
+OFAgent2 --> Switch2
+
+SecurityModule --> PolicyEngine : Evaluate policies on flows
+PolicyEngine --> FlowManager : Update flow rules based on policies
+
+TopologyManager --> FlowManager : Update network topology info
+FlowManager --> OFHandler : Translate flow rules to OpenFlow messages
+OFHandler --> Switch1 : Send flow mod messages
+OFHandler --> Switch2 : Send flow mod messages
+
+note right of SecurityModule
+Includes:
+- Intrusion detection
+- Flow anomaly detection
+- Access control enforcement
+end note
+
+note right of Controller
+RYU controller runs custom apps:
+- Topology discovery
+- Flow management
+- Security enforcement
+end note
+
+@enduml
