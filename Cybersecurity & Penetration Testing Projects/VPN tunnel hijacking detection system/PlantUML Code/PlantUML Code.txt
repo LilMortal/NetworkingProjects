@@ -1,1 +1,86 @@
-dsv 
+@startuml VPN_Tunnel_Hijacking_Detection
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<VPN>> #D0E8F2
+  BackgroundColor<<Monitoring>> #F9F1C8
+  BackgroundColor<<Detection>> #FADBD8
+  BackgroundColor<<Alerting>> #FBE4E6
+  BackgroundColor<<Administration>> #C8E6C9
+  BorderColor Black
+}
+
+title VPN Tunnel Hijacking Detection System
+
+actor "Network Administrator" as Admin
+actor "Attacker" as Attacker
+
+package "VPN Infrastructure" <<VPN>> {
+  component "VPN Client\n- User endpoint for secure connection" as VPNClient
+  component "VPN Server\n- Terminates VPN tunnels" as VPNServer
+  component "VPN Gateway\n- Controls tunnel routing" as VPNGateway
+}
+
+package "Monitoring & Data Collection" <<Monitoring>> {
+  component "Traffic Monitor\n- Captures VPN tunnel metadata and traffic" as TrafficMonitor
+  component "Log Collector\n- Aggregates VPN connection logs" as LogCollector
+}
+
+package "Detection Engine" <<Detection>> {
+  component "Anomaly Detector\n- Identifies irregular VPN tunnel behavior" as AnomalyDetector
+  component "Signature-based Detector\n- Matches known hijacking patterns" as SignatureDetector
+  component "Correlation Module\n- Correlates events across sources" as CorrelationModule
+}
+
+package "Alerting & Response" <<Alerting>> {
+  component "Alert Manager\n- Sends real-time alerts on detection" as AlertManager
+  component "Automated Response System\n- Can block suspicious sessions" as AutoResponse
+}
+
+package "Administration" <<Administration>> {
+  component "Admin Dashboard\n- View alerts, logs, and manage system" as AdminDashboard
+  component "Policy Manager\n- Configure detection rules and responses" as PolicyManager
+}
+
+Admin --> AdminDashboard : Monitor alerts and system status
+Admin --> PolicyManager : Configure detection policies
+
+VPNClient --> VPNServer : Establish VPN tunnel
+VPNServer --> VPNGateway : Tunnel routing and control
+
+VPNGateway --> TrafficMonitor : Send tunnel traffic metadata
+VPNServer --> LogCollector : Send connection logs
+
+TrafficMonitor --> AnomalyDetector : Provide traffic analysis data
+LogCollector --> SignatureDetector : Provide log data
+AnomalyDetector --> CorrelationModule : Send detected anomalies
+SignatureDetector --> CorrelationModule : Send signature matches
+
+CorrelationModule --> AlertManager : Trigger alerts on confirmed hijacks
+AlertManager --> AdminDashboard : Display alerts
+AlertManager --> AutoResponse : Trigger automatic mitigation actions
+
+AutoResponse --> VPNGateway : Block or terminate suspicious tunnels
+
+note right of AnomalyDetector
+- Detects unusual traffic spikes, timing irregularities
+- Monitors tunnel handshake anomalies
+end note
+
+note right of SignatureDetector
+- Uses database of known hijacking signatures
+- Matches attack patterns in VPN logs
+end note
+
+note right of CorrelationModule
+- Combines anomaly and signature data
+- Reduces false positives through correlation
+end note
+
+note right of AutoResponse
+- Can automatically block suspicious VPN IPs
+- Supports manual override by admin
+end note
+
+@enduml
