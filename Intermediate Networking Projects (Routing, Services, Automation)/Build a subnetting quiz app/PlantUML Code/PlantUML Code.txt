@@ -1,1 +1,56 @@
-dsv 
+@startuml Subnetting_Quiz_App
+
+skinparam componentStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam rectangle {
+  BackgroundColor<<Core>> #D0E8F2
+  BackgroundColor<<UI>> #FBE4E6
+  BackgroundColor<<Data>> #F9F1C8
+  BackgroundColor<<User>> #C8E6C9
+  BorderColor Black
+}
+
+title Subnetting Quiz App Architecture
+
+package "Core Logic (Python/Backend)" <<Core>> {
+  component "Quiz Engine\n• Generates questions\n• Validates answers\n• Supports multiple difficulty levels" as QuizEngine
+  component "Subnet Calculator\n• IP to binary\n• CIDR parsing\n• Range & broadcast calc" as SubnetCalc
+  component "Feedback Module\n• Explanation for wrong answers\n• Tips" as Feedback
+}
+
+package "User Interface (CLI/Web/Mobile)" <<UI>> {
+  component "Quiz UI\n• Shows questions & options\n• Input field" as QuizUI
+  component "Scoreboard\n• Displays scores\n• Tracks performance" as ScoreBoard
+  component "Session Manager\n• Tracks user session\n• Timer" as SessionMgr
+}
+
+package "User & Data Storage" <<Data>> {
+  component "User Profile Store\n• Username\n• Score history" as UserDB
+  component "Question Bank\n• Templates for questions" as QuestionDB
+}
+
+package "Authentication Module" <<User>> {
+  component "Login System\n• Sign up / Login\n• Session tokens" as Auth
+}
+
+actor "End User" as User
+
+' User interactions
+User --> Auth : Login/Register
+User --> QuizUI : Start Quiz
+QuizUI --> QuizEngine : Request new question
+QuizEngine --> SubnetCalc : Generate & evaluate
+QuizUI --> SessionMgr : Start/Track time
+QuizUI --> ScoreBoard : View scores
+
+' Answer submission
+QuizUI --> QuizEngine : Submit answer
+QuizEngine --> Feedback : Request feedback
+Feedback --> QuizUI : Show hints/tips
+
+' Data storage
+QuizEngine --> QuestionDB : Load question template
+QuizEngine --> UserDB : Store score
+Auth --> UserDB : Validate credentials
+
+@enduml
