@@ -1,1 +1,62 @@
-dsv 
+@startuml WANConnectionSimulation
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Router>> #FFE4B5
+  BackgroundColor<<WANLink>> #D0E8F2
+  BackgroundColor<<ProtocolConfig>> #F9F1C8
+  BorderColor Black
+}
+
+title WAN Connection Simulation: HDLC, PPP, Frame Relay
+
+actor "Network Administrator" as Admin
+
+node "Router 1\n(R1)" <<Router>> as R1 {
+  component "Serial0/0/0 Interface" as R1_S0
+  component "HDLC Protocol Config" <<ProtocolConfig>> as HDLC_Config
+}
+
+node "Router 2\n(R2)" <<Router>> as R2 {
+  component "Serial0/0/0 Interface" as R2_S0
+  component "PPP Protocol Config" <<ProtocolConfig>> as PPP_Config
+}
+
+node "Router 3\n(R3)" <<Router>> as R3 {
+  component "Serial0/0/0 Interface" as R3_S0
+  component "Frame Relay Config" <<ProtocolConfig>> as FR_Config
+}
+
+package "WAN Links" <<WANLink>> {
+  R1_S0 --> R2_S0 : HDLC Link
+  R2_S0 --> R3_S0 : PPP Link
+  R3_S0 --> R1_S0 : Frame Relay Link
+}
+
+Admin --> HDLC_Config : Configure HDLC on R1 <-> R2
+Admin --> PPP_Config : Configure PPP on R2 <-> R3
+Admin --> FR_Config : Configure Frame Relay on R3 <-> R1
+
+note right of HDLC_Config
+Example commands:
+interface Serial0/0/0
+ encapsulation hdlc
+ no keepalive
+end note
+
+note right of PPP_Config
+Example commands:
+interface Serial0/0/0
+ encapsulation ppp
+ ppp authentication pap
+end note
+
+note right of FR_Config
+Example commands:
+interface Serial0/0/0
+ encapsulation frame-relay
+ frame-relay lmi-type cisco
+end note
+
+@enduml
