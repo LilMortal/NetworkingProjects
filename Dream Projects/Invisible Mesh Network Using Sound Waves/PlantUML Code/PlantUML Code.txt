@@ -1,1 +1,86 @@
-dsv 
+@startuml Invisible_Mesh_Network_Sound_Waves
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Node>> #D0E8F2
+  BackgroundColor<<Signal>> #FADBD8
+  BackgroundColor<<Network>> #F9F1C8
+  BackgroundColor<<Security>> #C8E6C9
+  BackgroundColor<<Management>> #FBE4E6
+  BorderColor Black
+}
+
+title Invisible Mesh Network Using Sound Waves
+
+actor "User / Device Owner" as User
+actor "Network Administrator" as Admin
+
+package "Sound Wave Mesh Nodes" <<Node>> {
+  component "Mesh Node Device\n- Transmit/Receive data via ultrasonic sound\n- Process audio signals" as MeshNode
+  component "Acoustic Modulator\n- Encode data into sound waves" as AcousticModulator
+  component "Acoustic Demodulator\n- Decode received sound signals" as AcousticDemodulator
+  component "Mesh Routing Protocol\n- Manage multi-hop paths" as RoutingProtocol
+}
+
+package "Signal Processing & Transmission" <<Signal>> {
+  component "Signal Amplifier\n- Enhance sound wave signals" as SignalAmplifier
+  component "Noise Filter\n- Remove environmental noise" as NoiseFilter
+  component "Error Correction Module\n- Detect and fix errors in data" as ErrorCorrection
+}
+
+package "Network Layer" <<Network>> {
+  component "Data Packet Handler\n- Format packets for acoustic transmission" as PacketHandler
+  component "Mesh Network Manager\n- Oversees node discovery and topology" as NetworkManager
+}
+
+package "Security Layer" <<Security>> {
+  component "Encryption Module\n- Encrypt data before transmission" as EncryptionModule
+  component "Authentication Service\n- Verify node identities" as AuthService
+}
+
+package "Administration & Monitoring" <<Management>> {
+  component "Admin Console\n- Monitor network status and health" as AdminConsole
+  component "Policy Manager\n- Define communication and security policies" as PolicyManager
+}
+
+User --> MeshNode : Operate device and send data
+MeshNode --> AcousticModulator : Encode data into sound waves
+AcousticModulator --> SignalAmplifier : Amplify sound signal
+SignalAmplifier --> NoiseFilter : Filter noise
+NoiseFilter --> PacketHandler : Prepare data packets
+PacketHandler --> RoutingProtocol : Forward packets over mesh
+RoutingProtocol --> MeshNode : Manage routing and forwarding
+MeshNode --> AcousticDemodulator : Receive and decode sound signals
+AcousticDemodulator --> ErrorCorrection : Correct errors in received data
+ErrorCorrection --> EncryptionModule : Decrypt received data
+EncryptionModule --> AuthService : Verify sender authenticity
+
+MeshNode --> NetworkManager : Report status and topology info
+NetworkManager --> AdminConsole : Provide network metrics and alerts
+
+Admin --> AdminConsole : Monitor and control network
+AdminConsole --> PolicyManager : Set policies and configurations
+PolicyManager --> EncryptionModule : Enforce encryption standards
+PolicyManager --> RoutingProtocol : Configure routing parameters
+PolicyManager --> AuthService : Manage authentication rules
+
+note right of AcousticModulator
+- Converts digital data to ultrasonic frequencies
+- Ensures inaudible communication to humans
+end note
+
+note right of NoiseFilter
+- Uses adaptive algorithms to reduce environmental sound interference
+end note
+
+note right of RoutingProtocol
+- Implements robust mesh routing protocols for audio signals
+- Handles node mobility and dynamic topology changes
+end note
+
+note right of EncryptionModule
+- Uses lightweight encryption suitable for low-bandwidth acoustic channels
+end note
+
+@enduml
