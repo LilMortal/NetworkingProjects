@@ -1,1 +1,77 @@
-dsv 
+@startuml DataExfiltrationDetectionLAN
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Capture>> #D0E8F2
+  BackgroundColor<<Analysis>> #F9F1C8
+  BackgroundColor<<Detection>> #C8E6C9
+  BackgroundColor<<Alert>> #FADBD8
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title Data Exfiltration Detection in LAN
+
+actor "Network Administrator" as Admin
+
+package "Data Capture" <<Capture>> {
+  component "Network Traffic Monitor\n- Capture LAN traffic (packet capture, NetFlow)" as TrafficMonitor
+  component "Log Collector\n- Aggregate logs from endpoints and devices" as LogCollector
+}
+
+package "Data Analysis" <<Analysis>> {
+  component "Feature Extractor\n- Extract traffic features (volume, destinations, protocols)" as FeatureExtractor
+  component "Behavioral Profiler\n- Establish baseline of normal LAN behavior" as BehavioralProfiler
+}
+
+package "Detection Engine" <<Detection>> {
+  component "Anomaly Detector\n- Detect deviations from baseline" as AnomalyDetector
+  component "Signature Matcher\n- Match known exfiltration patterns" as SignatureMatcher
+}
+
+package "Alerting & Response" <<Alert>> {
+  component "Alert Manager\n- Generate and manage alerts" as AlertManager
+  component "Response Coordinator\n- Trigger automated or manual responses" as ResponseCoordinator
+}
+
+Admin --> TrafficMonitor : Configure monitoring parameters
+Admin --> LogCollector : Manage log sources
+
+TrafficMonitor --> FeatureExtractor : Forward traffic data
+LogCollector --> FeatureExtractor : Forward logs
+
+FeatureExtractor --> BehavioralProfiler : Build normal behavior profiles
+BehavioralProfiler --> AnomalyDetector : Provide baseline data
+
+FeatureExtractor --> SignatureMatcher : Provide real-time traffic features
+
+AnomalyDetector --> AlertManager : Send anomaly alerts
+SignatureMatcher --> AlertManager : Send signature alerts
+
+AlertManager --> Admin : Notify admin of suspicious activity
+AlertManager --> ResponseCoordinator : Initiate responses
+
+ResponseCoordinator --> TrafficMonitor : Apply traffic blocking or throttling
+ResponseCoordinator --> LogCollector : Increase log verbosity
+
+note right of BehavioralProfiler
+Uses historical data to:
+- Profile normal user and device behavior
+- Identify unusual data transfer patterns
+end note
+
+note right of AnomalyDetector
+Techniques:
+- Statistical anomaly detection
+- Machine learning models
+- Threshold-based alerts
+end note
+
+note right of SignatureMatcher
+Uses:
+- Known data exfiltration signatures
+- Patterns of suspicious protocols and destinations
+end note
+
+@enduml
