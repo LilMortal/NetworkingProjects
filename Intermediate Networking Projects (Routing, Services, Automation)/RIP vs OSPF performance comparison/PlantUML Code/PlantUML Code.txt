@@ -1,1 +1,46 @@
-dsv 
+@startuml
+title RIP vs OSPF Performance Comparison
+
+skinparam rectangle {
+  BackgroundColor #F0F8FF
+  BorderColor #4682B4
+  RoundCorner 5
+}
+
+rectangle "RIP (Routing Information Protocol)" as RIP #ADD8E6
+rectangle "OSPF (Open Shortest Path First)" as OSPF #90EE90
+
+rectangle "Convergence Time\n- RIP: Slow (~minutes)\n- OSPF: Fast (seconds)" as Conv
+rectangle "Scalability\n- RIP: Limited (max 15 hops)\n- OSPF: Large networks" as Scal
+rectangle "Resource Usage\n- RIP: Low CPU & Memory\n- OSPF: Higher CPU & Memory" as Res
+rectangle "Routing Metric\n- RIP: Hop Count\n- OSPF: Cost (Bandwidth)" as Met
+rectangle "Update Mechanism\n- RIP: Periodic full updates\n- OSPF: Incremental LSAs" as Upd
+rectangle "Security\n- RIP: Minimal\n- OSPF: Supports Authentication" as Sec
+rectangle "VLSM Support\n- RIP: Only RIPv2\n- OSPF: Fully Supported" as VLSM
+rectangle "Routing Algorithm\n- RIP: Distance Vector\n- OSPF: Link State" as Alg
+
+RIP -down-> Conv : "Compared"
+OSPF -down-> Conv
+
+RIP -down-> Scal
+OSPF -down-> Scal
+
+RIP -down-> Res
+OSPF -down-> Res
+
+RIP -down-> Met
+OSPF -down-> Met
+
+RIP -down-> Upd
+OSPF -down-> Upd
+
+RIP -down-> Sec
+OSPF -down-> Sec
+
+RIP -down-> VLSM
+OSPF -down-> VLSM
+
+RIP -down-> Alg
+OSPF -down-> Alg
+
+@enduml
