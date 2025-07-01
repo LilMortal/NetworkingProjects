@@ -1,1 +1,65 @@
-dsv 
+@startuml DNSTunnelingDetectionML
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Capture>> #D0E8F2
+  BackgroundColor<<Feature>> #F9F1C8
+  BackgroundColor<<ML>> #C8E6C9
+  BackgroundColor<<Detection>> #FFE4B5
+  BackgroundColor<<Alert>> #FADBD8
+  BorderColor Black
+}
+
+title DNS Tunneling Detection using Machine Learning
+
+actor "Network Admin" as Admin
+
+package "Data Capture" <<Capture>> {
+  component "DNS Traffic Sniffer\n- Capture DNS query/response logs" as DNSSniffer
+  component "Data Storage\n- Store captured DNS logs" as DataStorage
+}
+
+package "Feature Extraction" <<Feature>> {
+  component "Feature Engineering\n- Extract statistical & behavioral features\n(e.g., query length, entropy, frequency)" as FeatureEng
+}
+
+package "Machine Learning" <<ML>> {
+  component "Model Training\n- Train ML model on labeled DNS data" as ModelTraining
+  component "Trained Model\n- Classification model for detection" as TrainedModel
+}
+
+package "Detection & Alerting" <<Detection>> {
+  component "Real-time Detection\n- Apply model on live DNS traffic" as DetectionEngine
+  component "Alert System\n- Generate alerts on suspicious activity" as AlertSystem
+}
+
+Admin --> DNSSniffer : Configure capture parameters
+DNSSniffer --> DataStorage : Save DNS logs
+DataStorage --> FeatureEng : Provide data for feature extraction
+FeatureEng --> ModelTraining : Supply features and labels
+ModelTraining --> TrainedModel : Output trained classifier
+
+DNSSniffer --> FeatureEng : Provide live DNS data
+FeatureEng --> DetectionEngine : Extract features for detection
+DetectionEngine --> TrainedModel : Use model to classify
+DetectionEngine --> AlertSystem : Send alerts on detection
+
+Admin --> AlertSystem : Monitor alerts and logs
+
+note right of FeatureEng
+Features may include:
+- Query length
+- Character entropy
+- Query frequency
+- Domain name patterns
+end note
+
+note right of ModelTraining
+ML algorithms example:
+- Random Forest
+- SVM
+- Neural Networks
+end note
+
+@enduml
