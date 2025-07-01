@@ -1,1 +1,90 @@
-dsv 
+@startuml WAF_Simulation
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Client>> #C8E6C9
+  BackgroundColor<<WAF>> #FADBD8
+  BackgroundColor<<Backend>> #D0E8F2
+  BackgroundColor<<Monitoring>> #F9F1C8
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title Web Application Firewall (WAF) Simulation
+
+actor "User/Client" as Client
+actor "Security Administrator" as Admin
+
+package "Client Layer" <<Client>> {
+  component "Web Browser / Client App\n- Sends HTTP/HTTPS requests" as WebClient
+}
+
+package "WAF Module" <<WAF>> {
+  component "Request Filter\n- Inspects incoming traffic" as RequestFilter
+  component "Signature Engine\n- Matches known attack patterns" as SignatureEngine
+  component "Behavioral Analyzer\n- Detects anomalies and zero-day attacks" as BehavioralAnalyzer
+  component "Rule Engine\n- Applies configurable security policies" as RuleEngine
+  component "Response Filter\n- Filters outgoing responses" as ResponseFilter
+}
+
+package "Backend Web Servers" <<Backend>> {
+  component "Web Server\n- Hosts the web application" as WebServer
+  component "Application Server\n- Runs business logic" as AppServer
+  component "Database Server\n- Stores application data" as DBServer
+}
+
+package "Monitoring & Alerting" <<Monitoring>> {
+  component "Log Collector\n- Collects WAF logs and alerts" as LogCollector
+  component "Alert Manager\n- Sends notifications on suspicious activity" as AlertManager
+  component "Dashboard\n- Visualizes traffic and attack data" as Dashboard
+}
+
+package "Administration" <<Admin>> {
+  component "Admin Console\n- Configure WAF rules and view reports" as AdminConsole
+  component "Policy Manager\n- Manages WAF security policies" as PolicyManager
+}
+
+Client --> WebClient : Initiate HTTP/HTTPS requests
+WebClient --> RequestFilter : Incoming traffic inspection
+
+RequestFilter --> SignatureEngine : Match known attack signatures
+RequestFilter --> BehavioralAnalyzer : Analyze traffic behavior
+SignatureEngine --> RuleEngine : Pass signature match results
+BehavioralAnalyzer --> RuleEngine : Pass anomaly detection results
+RuleEngine --> WebServer : Forward allowed requests
+RuleEngine --> ResponseFilter : Filter outgoing data
+
+WebServer --> AppServer : Request processing
+AppServer --> DBServer : Query / update data
+DBServer --> AppServer : Return data
+AppServer --> WebServer : Respond to request
+
+ResponseFilter --> WebClient : Return filtered responses
+
+RequestFilter --> LogCollector : Log request data
+ResponseFilter --> LogCollector : Log response data
+RuleEngine --> AlertManager : Trigger alerts on threats
+
+LogCollector --> Dashboard : Provide real-time logs and stats
+AlertManager --> AdminConsole : Send alert notifications
+AdminConsole --> PolicyManager : Update security rules
+
+Admin --> AdminConsole : Configure and monitor WAF
+
+note right of SignatureEngine
+- Uses database of known attack signatures (e.g., SQLi, XSS)
+- Regularly updated with threat intelligence feeds
+end note
+
+note right of BehavioralAnalyzer
+- Uses heuristics and machine learning models
+- Detects unusual request patterns and zero-day threats
+end note
+
+note right of RuleEngine
+- Applies allow/block/monitor actions based on rules
+- Supports custom rule sets per application
+end note
+
+@enduml
