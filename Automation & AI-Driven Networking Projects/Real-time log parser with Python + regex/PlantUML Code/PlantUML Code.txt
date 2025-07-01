@@ -1,1 +1,52 @@
-dsv 
+@startuml RealTimeLogParser
+
+skinparam backgroundColor #FFFFFF
+skinparam style strictuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Python>> LightYellow
+  BackgroundColor<<Log>> #F0F8FF
+  BackgroundColor<<Regex>> #FFDDCC
+  BackgroundColor<<Alert>> #CCFFCC
+  BorderColor Black
+}
+
+actor "DevOps Engineer" as Engineer
+
+package "Log Sources" {
+  node "App Server\n(Nginx/Apache/Systemd)" <<Log>> as AppServer
+  node "Security Devices\n(Firewall/IDS)" <<Log>> as Security
+}
+
+package "Real-Time Parser System (Python)" {
+  rectangle "Parser Script\n(log_parser.py)" <<Python>> as Parser {
+    component "File Watcher\n(inotify/tailing)" as Watcher
+    component "Regex Pattern Matcher\n(re module)" <<Regex>> as RegexMatcher
+    component "Log Parser Engine" as ParserEngine
+    component "Alert Handler" <<Alert>> as AlertHandler
+    component "Log Formatter\n(JSON/CSV)" as Formatter
+  }
+}
+
+database "Log Store\n(ElasticSearch/S3/FlatFile)" <<Log>> as LogStore
+component "Dashboard\n(Kibana/Grafana/Streamlit)" as Dashboard
+component "Notification System\n(Email/Slack/Telegram)" <<Alert>> as Notifier
+
+' Flow from log sources to parser
+AppServer --> Watcher : Append logs
+Security --> Watcher : Write security logs
+
+Watcher --> ParserEngine : Detect file change & read lines
+ParserEngine --> RegexMatcher : Match patterns (e.g., error, fail, login)
+RegexMatcher --> ParserEngine : Extracted fields
+
+ParserEngine --> Formatter : Format structured logs
+Formatter --> LogStore : Save parsed logs
+
+ParserEngine --> AlertHandler : Detect critical log entries
+AlertHandler --> Notifier : Send alert message
+Notifier --> Engineer : Notify via Email/Slack
+
+Engineer --> Dashboard : View real-time & historical logs
+
+@enduml
