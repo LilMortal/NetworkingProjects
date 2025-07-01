@@ -1,1 +1,58 @@
-dsv 
+@startuml BasicFirewallWithACLs
+
+skinparam backgroundColor #FFFFFF
+skinparam style strictuml
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Zone>> #F9F9F9
+  BackgroundColor<<Firewall>> #FFF0E0
+  BackgroundColor<<Host>> #E0F7FF
+  BorderColor Black
+}
+
+title Basic Firewall Using Access Control Lists (ACLs)
+
+actor "Network Admin" as Admin
+
+package "Network Zones" {
+
+  rectangle "Internal LAN\n192.168.1.0/24" <<Zone>> {
+    node "PC-1\n192.168.1.10" <<Host>> as PC1
+    node "PC-2\n192.168.1.11" <<Host>> as PC2
+  }
+
+  rectangle "DMZ Zone\n192.168.2.0/24" <<Zone>> {
+    node "Web Server\n192.168.2.100" <<Host>> as WebServer
+    node "FTP Server\n192.168.2.101" <<Host>> as FTPServer
+  }
+
+  rectangle "Outside (Internet)" <<Zone>> {
+    node "External Host\n203.0.113.50" <<Host>> as InternetHost
+  }
+}
+
+node "Firewall/Router\n(With ACLs)" <<Firewall>> as Firewall {
+  component "ACL Config" as ACL
+}
+
+' Admin configures ACL
+Admin --> ACL : Define rules:
+note right of ACL
+1. Allow LAN → Internet (any)
+2. Allow Internet → WebServer (port 80)
+3. Allow LAN → DMZ (ports 80, 21)
+4. Deny all others (implicit)
+end note
+
+' Connections
+PC1 --> Firewall : HTTP to WebServer (allowed)
+PC2 --> Firewall : FTP to FTPServer (allowed)
+PC1 --> Firewall : HTTPS to InternetHost (allowed)
+InternetHost --> Firewall : HTTP to WebServer (allowed)
+InternetHost --> Firewall : SSH to PC1 (denied)
+
+Firewall --> WebServer : Allow if rule matches
+Firewall --> FTPServer : Allow if rule matches
+Firewall --> InternetHost : Allow outbound if matched
+
+@enduml
