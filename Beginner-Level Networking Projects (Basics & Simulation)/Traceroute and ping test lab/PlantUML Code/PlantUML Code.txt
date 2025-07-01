@@ -1,1 +1,56 @@
-dsv 
+@startuml TraceroutePingLab
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<Host>> #E0F7FF
+  BackgroundColor<<Router>> #FFE4B5
+  BackgroundColor<<Server>> #D3E4CD
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title Traceroute and Ping Test Lab
+
+actor "Network Administrator" as Admin
+
+node "Host PC" <<Host>> as HostPC {
+  component "Ping Utility" as PingTool
+  component "Traceroute Utility" as TracerouteTool
+}
+
+node "Router 1\n(Intermediate Device)" <<Router>> as Router1
+node "Router 2\n(Intermediate Device)" <<Router>> as Router2
+
+node "Target Server" <<Server>> as Server
+
+Admin --> HostPC : Initiate ping/traceroute tests
+
+' Test path arrows
+HostPC --> Router1 : ICMP Echo Request / Traceroute probes
+Router1 --> Router2 : Forward ICMP packets
+Router2 --> Server : Forward ICMP packets
+
+Server --> HostPC : ICMP Echo Reply / TTL expired messages
+
+note left of HostPC
+Commands used:
+- ping <target_IP>
+- traceroute <target_IP>
+end note
+
+note right of Router1
+Decrements TTL
+Forwards packets
+Generates ICMP Time Exceeded if TTL=0
+end note
+
+note right of Router2
+Same as Router1
+end note
+
+note right of Server
+Responds to ping with Echo Reply
+end note
+
+@enduml
