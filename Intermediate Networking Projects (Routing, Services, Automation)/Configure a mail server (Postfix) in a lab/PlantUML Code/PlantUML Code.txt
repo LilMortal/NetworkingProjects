@@ -1,1 +1,51 @@
-dsv 
+@startuml Postfix_Mail_Server_Lab
+
+skinparam componentStyle rectangle
+skinparam backgroundColor #FFFFFF
+skinparam rectangle {
+  BackgroundColor #F8F8F8
+  BorderColor Black
+}
+skinparam node {
+  BackgroundColor #E6F0FA
+  BorderColor Black
+}
+
+title Mail Server Lab: Postfix-Based Configuration
+
+actor "Mail Client\n(MUA)" as User
+cloud "Internet / DNS" {
+  component "Public DNS\n(MX, A records)" as DNS
+  component "Remote Mail Servers\n(Gmail, Outlook)" as RemoteMail
+}
+
+node "Mail Server (Lab)" {
+  component "Postfix (MTA)\nHandles SMTP send/receive" as Postfix
+  component "Dovecot (MDA)\nPOP3/IMAP for mailboxes" as Dovecot
+  component "Maildir / mbox\n(Local user storage)" as MailStorage
+  component "SpamAssassin / ClamAV\n(Optional filtering)" as Filter
+  component "PostgreSQL / LDAP\n(User backend)" as AuthDB
+  component "TLS/SSL Certificates\n(security)" as Certs
+  component "Firewall (ufw/iptables)\nPort 25, 587, 993" as FW
+}
+
+' Connections from user
+User --> Postfix : Send email (SMTP - port 587)
+User <-- Dovecot : Retrieve mail (IMAP/POP3)
+
+' Postfix interactions
+Postfix --> DNS : MX Lookup
+Postfix --> RemoteMail : Deliver outbound mail
+RemoteMail --> Postfix : Receive inbound mail (port 25)
+Postfix --> Filter : Pass mail for scanning
+Postfix --> Dovecot : Deliver local mail
+Dovecot --> MailStorage : Fetch/store mail
+Dovecot --> AuthDB : Authenticate users
+
+' Security
+Postfix --> Certs : Use TLS/SSL
+Dovecot --> Certs : Use TLS/SSL
+FW --> Postfix : Allow port 25, 587
+FW --> Dovecot : Allow port 993
+
+@enduml
