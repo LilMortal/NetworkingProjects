@@ -1,1 +1,78 @@
-dsv 
+@startuml AR_Network_Visualization_Control
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam rectangle {
+  BackgroundColor<<ARClient>> #D0E8F2
+  BackgroundColor<<Backend>> #FADBD8
+  BackgroundColor<<Data>> #F9F1C8
+  BackgroundColor<<Control>> #C8E6C9
+  BackgroundColor<<Admin>> #FBE4E6
+  BorderColor Black
+}
+
+title Augmented Reality (AR) Network Visualization & Control System
+
+actor "Network Engineer" as Engineer
+
+package "AR Client Devices" <<ARClient>> {
+  component "AR Headset / Mobile App\n- Renders network visualization\n- Receives user commands" as ARClientDevice
+}
+
+package "Network Data Sources" <<Data>> {
+  component "Network Devices\n(Routers, Switches, Firewalls)" as NetworkDevices
+  component "Telemetry & Logs\n- SNMP, NetFlow, Syslog data" as TelemetryLogs
+  component "Network Configuration DB\n- Device configs and topology" as ConfigDB
+}
+
+package "Backend Services" <<Backend>> {
+  component "Data Aggregation Engine\n- Collects & normalizes data" as DataAggregator
+  component "Network Topology Mapper\n- Builds network models" as TopologyMapper
+  component "AR Content Generator\n- Prepares 3D visualizations" as ARContentGen
+  component "Command Processor\n- Interprets and forwards user commands" as CommandProcessor
+}
+
+package "Control & Interaction" <<Control>> {
+  component "Control Engine\n- Executes network changes" as ControlEngine
+  component "Policy Engine\n- Enforces access & change policies" as PolicyEngine
+}
+
+package "Administration" <<Admin>> {
+  component "Admin Console\n- Configure AR settings & policies" as AdminConsole
+  component "User Management\n- Manage user roles & permissions" as UserMgmt
+}
+
+Engineer --> ARClientDevice : View network visualization\nIssue commands via gestures/voice
+ARClientDevice --> DataAggregator : Request network data
+DataAggregator --> NetworkDevices : Collect telemetry and state
+DataAggregator --> TelemetryLogs : Collect logs and metrics
+DataAggregator --> ConfigDB : Fetch device configurations
+
+DataAggregator --> TopologyMapper : Send normalized data
+TopologyMapper --> ARContentGen : Provide network topology model
+ARContentGen --> ARClientDevice : Deliver 3D visualizations
+
+ARClientDevice --> CommandProcessor : Send user commands
+CommandProcessor --> PolicyEngine : Validate commands against policies
+PolicyEngine --> ControlEngine : Authorize and forward commands
+ControlEngine --> NetworkDevices : Apply configuration changes
+
+AdminConsole --> UserMgmt : Manage roles & permissions
+AdminConsole --> PolicyEngine : Configure policies and access controls
+
+note right of ARContentGen
+- Converts network models into AR-friendly 3D objects
+- Supports real-time updates and interaction
+end note
+
+note right of CommandProcessor
+- Translates AR user inputs into actionable commands
+- Supports voice, gesture, and touch inputs
+end note
+
+note right of PolicyEngine
+- Ensures compliance with security and operational policies
+- Prevents unauthorized or risky changes
+end note
+
+@enduml
