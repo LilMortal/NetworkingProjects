@@ -1,1 +1,46 @@
-dsv 
+@startuml
+title Set Up Cisco Router as a DHCP Relay Agent
+
+skinparam rectangle {
+  BackgroundColor #F0F8FF
+  BorderColor #4682B4
+  RoundCorner 8
+}
+
+skinparam node {
+  BackgroundColor #FFFFFF
+  BorderColor #4682B4
+}
+
+node "DHCP Client\n(PCs in VLAN 10)" as Client
+node "Cisco Router\n(DHCP Relay Agent)" as Router
+node "DHCP Server\n(Located in another subnet)" as DHCPServer
+
+rectangle "Router Configuration Steps" as Config {
+  rectangle "1. Identify Interface Facing Clients\nExample:\ninterface FastEthernet0/1\n ip address 192.168.10.1 255.255.255.0" as Step1
+  rectangle "2. Configure DHCP Relay\nCommand:\nip helper-address 10.0.0.100" as Step2
+  rectangle "3. Verify Other UDP Ports (Optional)\nHelper-address also forwards:\n - TFTP, DNS, NetBIOS, etc." as Step3
+  rectangle "4. Test & Verify\nUse debug and show commands:\n- debug ip dhcp server packet\n- show ip interface FastEthernet0/1" as Step4
+}
+
+Client --> Router : DHCP Discover
+Router --> DHCPServer : DHCP Forwarded (UDP 67)
+DHCPServer --> Router : DHCP Offer
+Router --> Client : DHCP Offer relayed
+
+Router --> Config
+
+note right of Step2
+ip helper-address tells the router where to forward DHCP messages.
+end note
+
+note right of Step3
+By default, the router forwards 8 UDP services.
+You can limit them using:\nno ip forward-protocol udp [port]
+end note
+
+note right of Step4
+Verify using:\nshow ip interface\nshow running-config
+end note
+
+@enduml
