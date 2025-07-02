@@ -1,1 +1,46 @@
-dsv 
+@startuml
+title Wireshark Packet Capture & Analysis Workflow
+
+skinparam rectangle {
+  BackgroundColor #FAFAFA
+  BorderColor #4682B4
+  RoundCorner 15
+}
+
+skinparam node {
+  BackgroundColor #FFFFFF
+  BorderColor #1E90FF
+}
+
+actor "Network Analyst" as Analyst
+
+package "Capture Environment" {
+  node "Switch\n(Port Mirroring / SPAN)" as Switch
+  node "Wireshark Host\n(Analyst's PC)" as Wireshark
+}
+
+package "Network Targets" {
+  node "Web Server\n192.168.1.10" as WebServer
+  node "Client PC\n192.168.1.20" as Client
+  node "DNS Server\n8.8.8.8" as DNS
+}
+
+Client --> WebServer : HTTP Request
+WebServer --> Client : HTTP Response
+
+Client --> DNS : DNS Query
+DNS --> Client : DNS Response
+
+Switch --> Wireshark : Mirrored Traffic
+Wireshark --> Analyst : GUI Analysis
+
+note right of Wireshark
+Wireshark captures mirrored traffic from SPAN port\nand supports live decoding of protocols.
+Analyst can apply display filters like:\n- ip.addr == 192.168.1.10\n- tcp.port == 80\n- dns
+end note
+
+note right of Analyst
+Analyst uses filters, coloring rules,\nand expert info to find anomalies,\nlatency, retransmissions, etc.
+end note
+
+@enduml
