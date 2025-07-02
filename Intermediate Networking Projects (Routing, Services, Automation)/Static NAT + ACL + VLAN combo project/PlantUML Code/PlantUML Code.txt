@@ -1,1 +1,50 @@
-dsv 
+@startuml
+title Static NAT + ACL + VLAN Project
+
+skinparam rectangle {
+  BackgroundColor #F9F9F9
+  BorderColor #4682B4
+  RoundCorner 15
+}
+
+skinparam node {
+  BackgroundColor #FFFFFF
+  BorderColor #1E90FF
+}
+
+actor "External User" as Internet
+
+node "Router\n(NAT + ACL)" as Router {
+  rectangle "NAT Config:\nip nat inside\nip nat outside\nip nat inside source static 192.168.10.10 203.0.113.10" as NAT
+  rectangle "ACL Config:\naccess-list 101 permit tcp any host 192.168.10.10 eq 80\naccess-list 101 deny ip any any\ninterface s0/0\n ip access-group 101 in" as ACL
+}
+
+node "Switch\n(VLAN-aware)" as Switch {
+  rectangle "VLAN 10 - Web Servers\n192.168.10.0/24" as VLAN10
+  rectangle "VLAN 20 - Internal Users\n192.168.20.0/24" as VLAN20
+  rectangle "VLAN 99 - Management\n192.168.99.0/24" as VLAN99
+}
+
+node "Web Server\n192.168.10.10" as WebServer
+node "Admin PC\n192.168.99.10" as Admin
+node "User PC\n192.168.20.20" as User
+
+Internet --> Router : Access Public IP (203.0.113.10:80)
+Router --> WebServer : NAT Translates → 192.168.10.10
+
+User --> Switch : VLAN 20
+Admin --> Switch : VLAN 99
+WebServer --> Switch : VLAN 10
+
+Switch --> Router : Trunk/Uplink
+
+note right of Router
+Static NAT maps public IP to internal\nserver IP on port 80.
+ACL limits access to web server only.
+end note
+
+note right of Switch
+Each port assigned to correct VLAN.\n802.1Q trunk connects to router.
+end note
+
+@enduml
