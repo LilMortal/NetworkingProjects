@@ -1,1 +1,49 @@
-dsv 
+@startuml
+title Syslog and SNMP Monitoring Setup
+
+skinparam rectangle {
+  BackgroundColor #F5F5F5
+  BorderColor #4682B4
+  RoundCorner 15
+}
+
+skinparam node {
+  BackgroundColor #FFFFFF
+  BorderColor #1E90FF
+}
+
+actor "Network Admin" as Admin
+
+node "Syslog Server\n(Rsyslog / Graylog / Splunk)" as SyslogSrv
+node "SNMP Manager\n(Nagios / Zabbix / SolarWinds)" as SNMPMgr
+
+package "Network Devices" {
+  node "Router A\n192.168.1.1" as RouterA
+  node "Switch B\n192.168.1.2" as SwitchB
+  node "Firewall C\n192.168.1.3" as FirewallC
+}
+
+Admin --> SyslogSrv : View logs (web / terminal)
+Admin --> SNMPMgr : Monitor metrics
+
+RouterA --> SyslogSrv : Send Syslog (UDP 514)
+SwitchB --> SyslogSrv : Send Syslog (UDP 514)
+FirewallC --> SyslogSrv : Send Syslog (UDP 514)
+
+SNMPMgr --> RouterA : Poll SNMP data (UDP 161)
+SNMPMgr --> SwitchB : Poll SNMP data (UDP 161)
+SNMPMgr --> FirewallC : Poll SNMP data (UDP 161)
+
+RouterA --> SNMPMgr : Send traps (UDP 162)
+SwitchB --> SNMPMgr : Send traps (UDP 162)
+FirewallC --> SNMPMgr : Send traps (UDP 162)
+
+note right of SyslogSrv
+Syslog UDP port 514 must be open\nConfigure rsyslog or syslog-ng
+end note
+
+note right of SNMPMgr
+SNMP v2/v3 recommended for security\nTrap receiver must be enabled
+end note
+
+@enduml
